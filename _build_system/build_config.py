@@ -430,6 +430,7 @@ def configure_install(self):
     if bglb.skip_swig:
         bglb.clean_swig = False
         bglb.run_swig = False
+        bglb.keep_temp = True
 
     if bglb.ext_only:
         bglb.clean_swig = False
