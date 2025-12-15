@@ -16,7 +16,7 @@
 
 // initialization required to return numpy array from SWIG
 %init %{
-import_array();
+import_array1(-1);
 %}
 
 %include "exception.i"
@@ -29,6 +29,7 @@ import_array();
 OSTREAM_TYPEMAP(std::ostream&)
 
 %import "mem_manager.i"
+%ignore mfem::Table::ReadWriteJ();
 
 %include "general/table.hpp"
 

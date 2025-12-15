@@ -181,7 +181,7 @@ def generate_wrapper(do_parallel):
 
     update_header_exists(bglb.mfem_source)
 
-    swigflag = '-Wall -c++ -python -fastproxy -olddefs -keyword'.split(' ')
+    swigflag = '-Wall -c++ -python -std=c++17 -fastproxy -olddefs -keyword'.split(' ')
 
     pwd = chdir(os.path.join(rootdir, 'mfem', '_ser'))
 

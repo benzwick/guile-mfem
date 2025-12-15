@@ -381,6 +381,7 @@ def run(mesh_file="",
     pmesh.Print("mesh"+smyid, 8)
     u.real().Save("sol_r"+smyid, 8)
     u.imag().Save("sol_i"+smyid, 8)
+    u.Save("sol_z"+smyid, 8)
 
     # 14. Send the solution by socket to a GLVis server.
     if visualization:

@@ -13,7 +13,7 @@
 %include "../common/mfem_config.i"
 
 %init %{
-import_array();
+import_array1(-1);
 %}
 
 #ifdef MFEM_USE_MPI
@@ -29,5 +29,8 @@ import_array();
 %import "mesh.i"
 %import "gridfunc.i"
 %import "pgridfunc.i"
+
+%ignore mfem::ParaViewDataCollection::GetCoeffFieldMap;
+%ignore mfem::ParaViewDataCollection::GetVCoeffFieldMap;
 
 %include "fem/datacollection.hpp"

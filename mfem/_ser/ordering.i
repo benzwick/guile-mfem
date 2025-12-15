@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._par") segment
+%module(package="mfem._ser") ordering
 %{
 #include  "mfem.hpp"
 #include "numpy/arrayobject.h"
@@ -17,8 +17,5 @@ import_array1(-1);
 %include "../common/typemap_macros.i"
 %include "../common/exception.i"
 
-LIST_TO_INTARRAY_IN(const int *ind, 2)
-INTARRAY_OUT_TO_TUPLE(int *GetVertices, 2)
 
-%include "mesh/segment.hpp"
-
+%include "linalg/ordering.hpp"

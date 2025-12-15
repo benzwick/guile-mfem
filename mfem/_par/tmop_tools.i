@@ -12,7 +12,7 @@
 %}
 
 %init %{
-import_array();
+import_array1(-1);
 %}
 
 %include "../common/mfem_config.i"
@@ -34,5 +34,6 @@ import_array();
 %import bilinearform.i
 %import pbilinearform.i
 %import solvers.i
+%import ordering.i
 
 %include "fem/tmop_tools.hpp"

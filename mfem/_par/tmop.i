@@ -13,7 +13,7 @@
 %}
 
 %init %{
-import_array();
+import_array1(-1);
 %}
 
 %include "../common/mfem_config.i"
@@ -30,6 +30,7 @@ LIST_TO_MFEMOBJ_BOOLARRAY_IN(const mfem::Array<bool>& )
 
 %import intrules.i
 %import gridfunc.i
+%import ordering.i
 
 %import "../common/array_instantiation_macro.i"
 IGNORE_ARRAY_METHODS(mfem::TMOP_Integrator *)

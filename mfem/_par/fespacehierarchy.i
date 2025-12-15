@@ -16,11 +16,12 @@
 #include "../common/pyintrules.hpp"
 %}
 %init %{
-import_array();
+import_array1(-1);
 %}
 
 %include "exception.i"
 %import "vector.i"
 %import "bilinearform.i"
+%import "ordering.i"
 
 %include "fem/fespacehierarchy.hpp"

@@ -19,13 +19,14 @@
 #endif
 
 %init %{
-import_array();
+import_array1(-1);
 %}
 
 %include "exception.i"
  //%include "../common/cpointers.i"
  //%import "cpointers.i"
 %import "operators.i"
+%import "ordering.i"
 %import "fespace.i"
 %import "pmesh.i"
 %import "hypre.i"

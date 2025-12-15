@@ -12,6 +12,7 @@
 #include "fem/complex_fem.hpp"
 #include "linalg/complex_operator.hpp"
 #include "numpy/arrayobject.h"
+#include "../common/io_stream.hpp"
 #include "../common/pyoperator.hpp"
 #include "../common/pycoefficient.hpp"
 #include "../common/pyintrules.hpp"
@@ -19,7 +20,7 @@
 #include "../common/pylininteg.hpp"
   %}
 %init %{
-import_array();
+import_array1(-1);
 %}
 
 %include "exception.i"
@@ -37,5 +38,12 @@ import_array();
 %include "../common/typemap_macros.i"
 LIST_TO_MFEMOBJ_POINTERARRAY_IN(mfem::IntegrationRule const *irs[],  mfem::IntegrationRule *, 0)
 
+%import "../common/io_stream_typemap.i"
+OSTREAM_TYPEMAP(std::ostream&)
+ISTREAM_TYPEMAP(std::istream&)
+
 %include "../common/complex_fem_ext.i"
 %include "fem/complex_fem.hpp"
+
+OSTREAM_ADD_DEFAULT_FILE(ParComplexGridFunction, Save)
+

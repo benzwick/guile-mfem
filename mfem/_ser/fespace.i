@@ -20,7 +20,7 @@
 %}
 
 %init %{
-import_array();
+import_array1(-1);
 %}
 
 %include "exception.i"
@@ -38,6 +38,7 @@ import_array();
 %import "eltrans.i"
 %import "lininteg.i"
 %import "handle.i"
+%import "ordering.i"
 %import "restriction.i"
 %import "../common/exception.i"
 
