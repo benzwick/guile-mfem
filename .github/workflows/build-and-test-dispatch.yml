@@ -29,15 +29,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mfem-branch: [master, default] # 'default' uses a specific commit hash defined in setup.py:repos_sha
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        mfem-branch: [master, default] # 'default' uses a specific commit hash defined in CMakeLists.txt
+        guile-version: ['3.0']
         parallel: [false]
-    name: test-linux | ${{ matrix.mfem-branch }} | ${{ matrix.python-version }} | ${{ matrix.parallel && 'parallel' || 'serial' }}
+    name: test-linux | ${{ matrix.mfem-branch }} | ${{ matrix.guile-version }} | ${{ matrix.parallel && 'parallel' || 'serial' }}
     uses: ./.github/workflows/build-and-test-callable.yml
     with:
       os: ubuntu-latest
       mfem-branch: ${{ matrix.mfem-branch }}
-      python-version: ${{ matrix.python-version }}
+      guile-version: ${{ matrix.guile-version }}
       parallel: ${{ matrix.parallel }}
 
   test-linux-parallel:
@@ -45,15 +45,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mfem-branch: [master, default] # 'default' uses a specific commit hash defined in setup.py:repos_sha
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        mfem-branch: [master, default] # 'default' uses a specific commit hash defined in CMakeLists.txt
+        guile-version: ['3.0']
         parallel: [true]
-    name: test-linux | ${{ matrix.mfem-branch }} | ${{ matrix.python-version }} | ${{ matrix.parallel && 'parallel' || 'serial' }}
+    name: test-linux | ${{ matrix.mfem-branch }} | ${{ matrix.guile-version }} | ${{ matrix.parallel && 'parallel' || 'serial' }}
     uses: ./.github/workflows/build-and-test-callable.yml
     with:
       os: ubuntu-latest
       mfem-branch: ${{ matrix.mfem-branch }}
-      python-version: ${{ matrix.python-version }}
+      guile-version: ${{ matrix.guile-version }}
       parallel: ${{ matrix.parallel }}
 
   # -------------------------------------------------------------------------------------------------
@@ -64,14 +64,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mfem-branch: [master, default] # 'default' uses a specific commit hash defined in setup.py:repos_sha
+        mfem-branch: [master, default] # 'default' uses a specific commit hash defined in CMakeLists.txt
         parallel: [false, true]
     name: test-fast | ${{ matrix.mfem-branch }} | ${{ matrix.parallel && 'parallel' || 'serial' }}
     uses: ./.github/workflows/build-and-test-callable.yml
     with:
       os: ubuntu-latest
       mfem-branch: ${{ matrix.mfem-branch }}
-      python-version: '3.9'
+      guile-version: '3.0'
       parallel: ${{ matrix.parallel }}
 
   # -------------------------------------------------------------------------------------------------
