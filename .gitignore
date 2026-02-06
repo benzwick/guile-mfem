@@ -12,6 +12,11 @@ build
 dist
 test/*
 !test/*.py
+!test/*.scm
+!test/unit/
+!test/unit/*.scm
+!test/integration/
+!test/integration/*.scm
 !test/cpp
 !test/cpp/
 !test/issues/*.py
