@@ -1,44 +1,37 @@
-[![badge](examples/jupyter/.assets/ex1.svg)](https://colab.research.google.com/github/mfem/pymfem/blob/master/examples/jupyter/ex1.ipynb)
-[![badge](examples/jupyter/.assets/ex9.svg)](https://colab.research.google.com/github/mfem/pymfem/blob/master/examples/jupyter/ex9.ipynb)
+#  MFEM + guile-mfem (FEM library)
 
-#  MFEM + PyMFEM (FEM library)
+This repository provides GNU Guile binding for MFEM. MFEM is a high performance parallel finite element method (FEM) library (http://mfem.org/).
 
-This repository provides Python binding for MFEM. MFEM is a high performance parallel finite element method (FEM) library (http://mfem.org/).
-
-Installer (setup.py) builds both MFEM and binding together.
-By default, "pip install mfem" downloads and builds the serial version of MFEM and PyMFEM.
-Additionally, the installer supports building MFEM with specific options together with other external libraries, including MPI version.
+Forked from [PyMFEM](https://github.com/mfem/PyMFEM) and adapted to target Guile 3.0 via SWIG.
 
 ## Install
-### Using pip (Serial MFEM)
+### Build from source (Serial MFEM)
 ```shell
-pip install mfem            # binary install is available only on linux platforms (Py38-312)
-
+$ git clone https://github.com/benzwick/guile-mfem.git
+$ cd guile-mfem
+$ cmake -B build -DMFEM_DIR=/path/to/mfem
+$ cmake --build build -j$(nproc)
 ```
 
-### Build with additional features (MPI, GPU, GPU-Hypre, GSLIB, SuiteSparse, libCEED, LAPACK)
+### Build with additional features (MPI, GPU, GSLIB, libCEED)
 
-The setup script accept various options. Download the package manually and run the script. Examples below downloads and build parallel version of MFEM library (linked with Metis and Hypre) and installs under <prefix>/mfem. See [INSTALL](INSTALL.md) for various other options
-
-#### Download source and build
 ```shell
-$ git clone https://github.com/mfem/PyMFEM.git
-
-# Build it from local source with MPI
-$ pip install ./ -C"with-parallel=Yes" --verbose
+$ cmake -B build -DMFEM_DIR=/path/to/mfem -DGUILE_MFEM_USE_MPI=ON
+$ cmake --build build -j$(nproc)
 ```
 
 #### Cleaning
 ```shell
-$ python setup.py clean --all # clean external dependencies + wrapper code
+$ rm -rf build
 ```
 #### Run test
 ```shell
-cd test
-python test_examples.py -serial
+cd build && ctest --output-on-failure
 ```
 
 ## Usage
+TODO: Guile usage example. Below is the PyMFEM (Python) version for reference.
+
 This example (modified from `ex1.cpp`) solves the Poisson equation,
 $$\nabla \cdot (\alpha \nabla u) = f$$
 in a square and plots the result using matplotlib.
@@ -119,7 +112,7 @@ plt.show()
 
 
 ## License
-PyMFEM is licensed under BSD-3 license. All new contributions
+guile-mfem is licensed under BSD-3 license. All new contributions
 must be made under this license. See [License](LICENSE) for details.
 
 Please refer the developers' web sites for the external libraries
