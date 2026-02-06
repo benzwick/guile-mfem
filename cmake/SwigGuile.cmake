@@ -26,6 +26,7 @@ function(add_guile_mfem_module name)
       -proxy -emit-setters
       -DSWIG_TYPE_TABLE=GuileMFEM
       -I${MFEM_INCLUDE_DIRS}
+      -I${MFEM_INCLUDE_DIRS}/mfem
       ${ARG_SWIG_FLAGS}
       -module ${name}
       -o "${_wrap_cxx}"
@@ -40,7 +41,8 @@ function(add_guile_mfem_module name)
   add_library(${name} MODULE "${_wrap_cxx}")
   target_include_directories(${name} PRIVATE
     ${GUILE_INCLUDE_DIRS}
-    ${MFEM_INCLUDE_DIRS})
+    ${MFEM_INCLUDE_DIRS}
+    ${MFEM_INCLUDE_DIRS}/mfem)
   target_link_libraries(${name} PRIVATE
     ${GUILE_LIBRARIES}
     ${ARG_DEPENDS})
