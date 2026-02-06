@@ -1,0 +1,9 @@
+[submodule "_reference/mfem"]
+	path = _reference/mfem
+	url = https://github.com/mfem/mfem.git
+[submodule "_reference/PyMFEM"]
+	path = _reference/PyMFEM
+	url = https://github.com/mfem/PyMFEM.git
+[submodule "_reference/swig"]
+	path = _reference/swig
+	url = https://github.com/swig/swig.git
