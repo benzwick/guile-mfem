@@ -40,4 +40,5 @@ add_test(
   COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-version.scm")
 set_tests_properties(test-version PROPERTIES
-  LABELS "serial")
+  LABELS "serial"
+  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}")
