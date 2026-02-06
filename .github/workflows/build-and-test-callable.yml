@@ -129,18 +129,31 @@ jobs:
     # -------------------------------------------------------------------------------------------------
     # Build MFEM + SWIG Bindings + guile-mfem
     # -------------------------------------------------------------------------------------------------
+    - name: Determine MFEM ref
+      id: mfem-ref
+      run: |
+        if [ "${{ inputs.mfem-branch }}" = "default" ]; then
+          echo "ref=$(sed -n 's/.*GUILE_MFEM_MFEM_SHA "\([0-9a-f]*\)".*/\1/p' CMakeLists.txt)" >> $GITHUB_OUTPUT
+        else
+          echo "ref=${{ inputs.mfem-branch }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Cache MFEM
+      id: cache-mfem
+      uses: actions/cache@v4
+      with:
+        path: mfem-install
+        key: mfem-${{ inputs.os }}-${{ steps.mfem-ref.outputs.ref }}-${{ inputs.parallel && 'parallel' || 'serial' }}${{ inputs.cuda && '-cuda' || '' }}
+
     - name: Clone MFEM
+      if: steps.cache-mfem.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/mfem/mfem.git mfem-src
         cd mfem-src
-        if [ "${{ inputs.mfem-branch }}" = "default" ]; then
-          sha=$(sed -n 's/.*GUILE_MFEM_MFEM_SHA "\([0-9a-f]*\)".*/\1/p' "${{ github.workspace }}/CMakeLists.txt")
-          git checkout "$sha"
-        else
-          git checkout "${{ inputs.mfem-branch }}"
-        fi
+        git checkout ${{ steps.mfem-ref.outputs.ref }}
 
     - name: Build MFEM (step 1)
+      if: steps.cache-mfem.outputs.cache-hit != 'true'
       run: |
         cmake -S mfem-src -B mfem-build \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/mfem-install \
