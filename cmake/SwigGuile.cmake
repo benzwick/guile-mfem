@@ -13,7 +13,28 @@
 # has both (build-tree) or the install prefix (installed layout).
 get_target_property(_SWIG_MFEM_INCDIRS mfem INTERFACE_INCLUDE_DIRECTORIES)
 message(STATUS "MFEM include dirs (from target): ${_SWIG_MFEM_INCDIRS}")
+
+# In the installed layout, headers live under <prefix>/include/mfem/
+# (e.g. include/mfem/general/version.hpp) but SWIG .i files reference
+# them without the mfem/ prefix (e.g. %include "general/version.hpp").
+# Add the mfem/ subdirectory to the include path when it exists.
+foreach(_dir IN LISTS _SWIG_MFEM_INCDIRS)
+  if(IS_DIRECTORY "${_dir}/mfem")
+    list(APPEND _SWIG_MFEM_INCDIRS "${_dir}/mfem")
+  endif()
+endforeach()
+
 list(REMOVE_DUPLICATES _SWIG_MFEM_INCDIRS)
+message(STATUS "SWIG include dirs: ${_SWIG_MFEM_INCDIRS}")
+
+# Locate _config.hpp for the MFEM_CONFIG_FILE compile definition.
+# In the build tree it is at <build>/config/_config.hpp; in the
+# installed layout it is at <prefix>/include/mfem/config/_config.hpp.
+find_file(_MFEM_CONFIG_HPP _config.hpp
+  HINTS ${_SWIG_MFEM_INCDIRS}
+  PATH_SUFFIXES config
+  NO_DEFAULT_PATH)
+message(STATUS "MFEM _config.hpp: ${_MFEM_CONFIG_HPP}")
 
 function(add_guile_mfem_module name)
   cmake_parse_arguments(ARG "" "SWIG_FILE" "DEPENDS;SWIG_FLAGS" ${ARGN})
@@ -56,9 +77,9 @@ function(add_guile_mfem_module name)
   target_include_directories(${name} PRIVATE
     ${GUILE_INCLUDE_DIRS}
     ${_SWIG_MFEM_INCDIRS})
-  # Point MFEM's config.hpp at the generated _config.hpp in the build dir.
+  # Point MFEM's config.hpp at the generated _config.hpp.
   target_compile_definitions(${name} PRIVATE
-    "MFEM_CONFIG_FILE=\"${MFEM_DIR}/config/_config.hpp\"")
+    "MFEM_CONFIG_FILE=\"${_MFEM_CONFIG_HPP}\"")
   target_link_libraries(${name} PRIVATE
     ${GUILE_LIBRARIES}
     ${ARG_DEPENDS})
