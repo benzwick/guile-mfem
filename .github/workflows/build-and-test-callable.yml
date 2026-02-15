@@ -143,7 +143,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: mfem-install
-        key: mfem-${{ inputs.os }}-${{ steps.mfem-ref.outputs.ref }}-${{ inputs.parallel && 'parallel' || 'serial' }}${{ inputs.cuda && '-cuda' || '' }}
+        key: mfem-shared-${{ inputs.os }}-${{ steps.mfem-ref.outputs.ref }}-${{ inputs.parallel && 'parallel' || 'serial' }}${{ inputs.cuda && '-cuda' || '' }}
 
     - name: Clone MFEM
       if: steps.cache-mfem.outputs.cache-hit != 'true'
@@ -157,6 +157,7 @@ jobs:
       run: |
         cmake -S mfem-src -B mfem-build \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/mfem-install \
+          -DBUILD_SHARED_LIBS=ON \
           -DMFEM_ENABLE_TESTING=OFF \
           -DMFEM_ENABLE_EXAMPLES=OFF \
           -DMFEM_ENABLE_MINIAPPS=OFF \
@@ -174,12 +175,12 @@ jobs:
     - name: Run tests (serial)
       if: inputs.parallel == false
       run: |
-        cd build && ctest --output-on-failure -L serial
+        cd build && LD_LIBRARY_PATH=${{ github.workspace }}/mfem-install/lib ctest --output-on-failure -L serial
 
     - name: Run tests (parallel)
       if: inputs.parallel
       run: |
-        cd build && ctest --output-on-failure -L parallel
+        cd build && LD_LIBRARY_PATH=${{ github.workspace }}/mfem-install/lib ctest --output-on-failure -L parallel
 
     # -------------------------------------------------------------------------------------------------
     # Generate an artifact (output of tests) on failure
