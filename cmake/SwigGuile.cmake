@@ -9,9 +9,10 @@
 
 # MFEM's MFEMConfig.cmake sets MFEM_INCLUDE_DIRS to just the build dir,
 # but SWIG and the compiler also need the source dir for headers like
-# general/vector.hpp. Read MFEM_SOURCE_DIR from the MFEM build cache.
-load_cache(${MFEM_DIR} READ_WITH_PREFIX _MFEM_ mfem_SOURCE_DIR)
-set(_SWIG_MFEM_INCDIRS ${MFEM_INCLUDE_DIRS} ${_MFEM_mfem_SOURCE_DIR})
+# general/vector.hpp. The imported mfem target's INTERFACE_INCLUDE_DIRECTORIES
+# has both (build-tree) or the install prefix (installed layout).
+get_target_property(_SWIG_MFEM_INCDIRS mfem INTERFACE_INCLUDE_DIRECTORIES)
+message(STATUS "MFEM include dirs (from target): ${_SWIG_MFEM_INCDIRS}")
 list(REMOVE_DUPLICATES _SWIG_MFEM_INCDIRS)
 
 function(add_guile_mfem_module name)
