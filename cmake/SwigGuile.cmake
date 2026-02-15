@@ -7,6 +7,13 @@
 #     SWIG_FILE mfem/_ser/version.i
 #     DEPENDS mfem)
 
+# MFEM's MFEMConfig.cmake sets MFEM_INCLUDE_DIRS to just the build dir,
+# but SWIG and the compiler also need the source dir for headers like
+# general/vector.hpp. Read MFEM_SOURCE_DIR from the MFEM build cache.
+load_cache(${MFEM_DIR} READ_WITH_PREFIX _MFEM_ mfem_SOURCE_DIR)
+set(_SWIG_MFEM_INCDIRS ${MFEM_INCLUDE_DIRS} ${_MFEM_mfem_SOURCE_DIR})
+list(REMOVE_DUPLICATES _SWIG_MFEM_INCDIRS)
+
 function(add_guile_mfem_module name)
   cmake_parse_arguments(ARG "" "SWIG_FILE" "DEPENDS;SWIG_FLAGS" ${ARGN})
 
@@ -17,6 +24,12 @@ function(add_guile_mfem_module name)
   set(_wrap_cxx "${CMAKE_CURRENT_BINARY_DIR}/${name}_wrap.cxx")
   set(_scm_stub "${CMAKE_CURRENT_BINARY_DIR}/${name}.scm")
 
+  # Build SWIG -I flags from include dirs
+  set(_swig_inc_flags "")
+  foreach(_dir IN LISTS _SWIG_MFEM_INCDIRS)
+    list(APPEND _swig_inc_flags "-I${_dir}")
+  endforeach()
+
   # Run SWIG to generate wrapper
   add_custom_command(
     OUTPUT "${_wrap_cxx}" "${_scm_stub}"
@@ -25,8 +38,8 @@ function(add_guile_mfem_module name)
       -Linkage module
       -proxy -emit-setters
       -DSWIG_TYPE_TABLE=GuileMFEM
-      -I${MFEM_INCLUDE_DIRS}
-      -I${MFEM_INCLUDE_DIRS}/mfem
+      -DMFEM_DEPRECATED=
+      ${_swig_inc_flags}
       ${ARG_SWIG_FLAGS}
       -module ${name}
       -o "${_wrap_cxx}"
@@ -41,8 +54,10 @@ function(add_guile_mfem_module name)
   add_library(${name} MODULE "${_wrap_cxx}")
   target_include_directories(${name} PRIVATE
     ${GUILE_INCLUDE_DIRS}
-    ${MFEM_INCLUDE_DIRS}
-    ${MFEM_INCLUDE_DIRS}/mfem)
+    ${_SWIG_MFEM_INCDIRS})
+  # Point MFEM's config.hpp at the generated _config.hpp in the build dir.
+  target_compile_definitions(${name} PRIVATE
+    "MFEM_CONFIG_FILE=\"${MFEM_DIR}/config/_config.hpp\"")
   target_link_libraries(${name} PRIVATE
     ${GUILE_LIBRARIES}
     ${ARG_DEPENDS})

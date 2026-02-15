@@ -1,6 +1,7 @@
 (use-modules (srfi srfi-64))
 
 (load-extension "version" "scm_init_version_module")
+(use-modules (version-primitive))
 
 (test-begin "mfem-version")
 
@@ -22,4 +23,6 @@
 (test-assert "GetVersionPatch returns a non-negative integer"
   (>= (GetVersionPatch) 0))
 
+(define runner (test-runner-current))
 (test-end "mfem-version")
+(exit (zero? (test-runner-fail-count runner)))

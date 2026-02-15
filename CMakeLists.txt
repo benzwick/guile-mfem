@@ -33,6 +33,18 @@ add_guile_mfem_module(version
   SWIG_FILE mfem/_ser/version.i
   DEPENDS mfem)
 
+add_guile_mfem_module(mem_manager
+  SWIG_FILE mfem/_ser/mem_manager.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(array
+  SWIG_FILE mfem/_ser/array.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(vector
+  SWIG_FILE mfem/_ser/vector.i
+  DEPENDS mfem)
+
 # Tests
 enable_testing()
 add_test(
@@ -40,5 +52,13 @@ add_test(
   COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-version.scm")
 set_tests_properties(test-version PROPERTIES
+  LABELS "serial"
+  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+
+add_test(
+  NAME test-vector
+  COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-vector.scm")
+set_tests_properties(test-vector PROPERTIES
   LABELS "serial"
   ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}")

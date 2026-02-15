@@ -6,7 +6,7 @@
    vector.i
 
 */
-%module(package="mfem._ser") vector
+%module vector
 %feature("autodoc", "1");
 %{
 #include "linalg/vector.hpp"
@@ -18,17 +18,6 @@
 #include <cstring>
 #include <ctime>
 #include "mfem.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/io_stream.hpp"
-%}
-
-// initialization required to return numpy array from SWIG
-%begin %{
-#define PY_SSIZE_T_CLEAN
-%}
-
-%init %{
-import_array1(-1);
 %}
 
 %include "exception.i"
@@ -47,86 +36,6 @@ OSTREAM_TYPEMAP(std::ostream&)
 ISTREAM_TYPEMAP(std::istream&)
 
 ARRAY_TO_DOUBLEARRAY_IN(double *data_)
-
-%pythonprepend mfem::Vector::Vector %{
-from numpy import ndarray, ascontiguousarray
-keep_link = False
-own_data = False
-if len(args) == 1:
-    if isinstance(args[0], list):
-        args = (args[0], len(args[0]))
-        own_data = True
-    elif isinstance(args[0], ndarray):
-        if args[0].dtype != 'float64':
-            raise ValueError('Must be float64 array ' + str(args[0].dtype) +
-			     ' is given')
-        else:
-            args = (ascontiguousarray(args[0]), args[0].shape[0])
-            # in this case, args[0] need to be maintained
-            # in this object.
-            keep_link = True
-%}
-
-%pythonappend mfem::Vector::Vector %{
-if keep_link:
-   self._link_to_data = args[0]
-if own_data:
-   self.MakeDataOwner()
-%}
-
-%feature("shadow") mfem::Vector::operator+= %{
-def __iadd__(self, v):
-    ret = _vector.Vector___iadd__(self, v)
-    #ret.thisown = self.thisown
-    ret.thisown = 0
-    return self
-%}
-%feature("shadow") mfem::Vector::operator-= %{
-def __isub__(self, v):
-    ret = _vector.Vector___isub__(self, v)
-    #ret.thisown = self.thisown
-    ret.thisown = 0
-    return self
-%}
-%feature("shadow") mfem::Vector::operator*= %{
-def __imul__(self, v):
-    ret = _vector.Vector___imul__(self, v)
-    #ret.thisown = self.thisown
-    ret.thisown = 0
-    return self
-%}
-%feature("shadow") mfem::Vector::operator/= %{
-def __itruediv__(self, v):
-    ret = _vector.Vector___itruediv__(self, v)
-    #ret.thisown = self.thisown
-    ret.thisown = 0
-    return self
-%}
-//rename(Assign) mfem::Vector::operator=;
-%pythonprepend mfem::Vector::Assign %{
-from numpy import ndarray, ascontiguousarray, array
-keep_link = False
-if len(args) == 1:
-    if isinstance(args[0], ndarray):
-        if args[0].dtype != 'float64':
-            raise ValueError('Must be float64 array ' + str(args[0].dtype) +
-		   ' is given')
-        elif args[0].ndim != 1:
-            raise ValueError('Ndim must be one')
-        elif args[0].shape[0] != self.Size():
-            raise ValueError('Length does not match')
-        else:
-            args = (ascontiguousarray(args[0]),)
-    elif isinstance(args[0], tuple):
-        args = (array(args[0], dtype = float),)
-    elif isinstance(args[0], list):
-        args = (array(args[0], dtype = float),)
-    else:
-        pass
-%}
-%pythonappend mfem::Vector::Assign %{
-return self
-%}
 
 %ignore mfem::add;
 %ignore mfem::subtract;
@@ -189,35 +98,25 @@ INSTANTIATE_ARRAY0(Vector *, Vector, 1)
   void Assign(const mfem::Vector &v) {
     (* self) = v;
   }
-  void Assign(PyObject* param) {
-    /* note that these error does not raise error in python
-       type check is actually done in wrapper layer */
-    PyArrayObject *param0 = reinterpret_cast<PyArrayObject *>(param);
-
-    if (!PyArray_Check(param0)){
-       PyErr_SetString(PyExc_ValueError, "Input data must be ndarray");
-       return;
+  void AssignData(SCM param) {
+    /* Accept f64vector and assign its data to this Vector */
+    if (!scm_is_true(scm_f64vector_p(param))){
+       scm_misc_error("Vector-AssignData", "Input data must be f64vector", SCM_EOL);
     }
-    int typ = PyArray_TYPE(param0);
-    if (typ != NPY_DOUBLE){
-        PyErr_SetString(PyExc_ValueError, "Input data must be float64");
-	return;
+    scm_t_array_handle handle;
+    size_t len;
+    ssize_t inc;
+    const double *elts = scm_f64vector_elements(param, &handle, &len, &inc);
+    int vlen = self->Size();
+    if ((int)len != vlen){
+      scm_array_handle_release(&handle);
+      scm_misc_error("Vector-Assign", "input data length does not match", SCM_EOL);
     }
-    int ndim = PyArray_NDIM(param0);
-    if (ndim != 1){
-      PyErr_SetString(PyExc_ValueError, "Input data NDIM must be one");
-      return ;
-    }
-    npy_intp *shape = PyArray_DIMS(param0);
-    int len = self->Size();
-    if (shape[0] != len){
-      PyErr_SetString(PyExc_ValueError, "input data length does not match");
-      return ;
-    }
-    (* self) = (double *) PyArray_DATA(param0);
+    (* self) = const_cast<double*>(elts);
+    scm_array_handle_release(&handle);
   }
 
-  void __setitem__(int i, const double v) {
+  void set(int i, const double v) {
     int len = self->Size();
     if (i >= 0){
        (* self)(i) = v;
@@ -225,99 +124,28 @@ INSTANTIATE_ARRAY0(Vector *, Vector, 1)
       (* self)(len+i) = v;
     }
   }
-  PyObject* __getitem__(PyObject* param) {
+  double get(int idx) {
     int len = self->Size();
-    if (PySlice_Check(param)) {
-        long start = 0, stop = 0, step = 0, slicelength = 0;
-        int check;
-
-	%#ifdef TARGET_PY3
-   	check = PySlice_GetIndicesEx(param, len, &start, &stop, &step,
-				     &slicelength);
-        %#else
-   	check = PySlice_GetIndicesEx((PySliceObject*)param, len, &start, &stop, &step,
-				     &slicelength);
-	%#endif
-
-	if (check == -1) {
-            PyErr_SetString(PyExc_ValueError, "Slicing mfem::Vector failed.");
-            return NULL;
-	}
-	if (step == 1) {
-            mfem::Vector *vec;
-            vec = new mfem::Vector(self->GetData() +  start, slicelength);
-            return SWIG_NewPointerObj(SWIG_as_voidptr(vec), $descriptor(mfem::Vector *), 1);
-	} else {
-            mfem::Vector *vec;
-            vec = new mfem::Vector(slicelength);
-            double* data = vec -> GetData();
-	    int idx = start;
-            for (int i = 0; i < slicelength; i++)
-            {
-	      data[i] = (* self)(idx);
-	      idx += step;
-            }
-            return SWIG_NewPointerObj(SWIG_as_voidptr(vec), $descriptor(mfem::Vector *), 1);
-	}
-    } else {
-        PyErr_Clear();
-        long idx = PyInt_AsLong(param);
-        if (PyErr_Occurred()) {
-           PyErr_SetString(PyExc_ValueError, "Argument must be either int or slice");
-            return NULL;
-        }
-	if ((idx >= len) && (idx >= -len-1)){
-	  PyErr_SetString(PyExc_IndexError, "Index must be < Size (counting forward) or > -Size-1 (counting backward)");
-          return NULL;
-	}
-        if (idx >= 0){
-           return PyFloat_FromDouble((* self)(idx));
-        } else {
-           return PyFloat_FromDouble((* self)(len+idx));
-	}
+    if (idx < 0) idx = len + idx;
+    if (idx < 0 || idx >= len) {
+      scm_misc_error("Vector-get", "Index out of range", SCM_EOL);
     }
+    return (* self)(idx);
   }
-  PyObject* GetDataArray(void) const{
+  SCM GetDataArray(void) const{
      double * A = self->GetData();
      int L = self->Size();
-     npy_intp dims[] = {L};
-     return  PyArray_SimpleNewFromData(1, dims, NPY_DOUBLE, A);
-  }
-
-  PyObject* WriteToStream(PyObject* StringIO, int width=8) const  {
-      PyObject* module = PyImport_ImportModule("io");
-      if (!module){
-   	 PyErr_SetString(PyExc_RuntimeError, "Can not load io module");
-         return (PyObject *) NULL;
-      }
-      PyObject* cls = PyObject_GetAttrString(module, "StringIO");
-      if (!cls){
-   	 PyErr_SetString(PyExc_RuntimeError, "Can not load StringIO");
-         return (PyObject *) NULL;
-      }
-      int check = PyObject_IsInstance(StringIO, cls);
-      Py_DECREF(module);
-      if (! check){
- 	 PyErr_SetString(PyExc_TypeError, "First argument must be IOString");
-         return (PyObject *) NULL;
-      }
-      std::ostringstream stream;
-      self->Print(stream, width);
-      std::string str =  stream.str();
-      const char* s = str.c_str();
-      const int n = str.length();
-      PyObject *ret = PyObject_CallMethod(StringIO, "write", "s#", s, static_cast<Py_ssize_t>(n));
-      if (PyErr_Occurred()) {
-         PyErr_SetString(PyExc_RuntimeError, "Error occured when writing IOString");
-         return (PyObject *) NULL;
-      }
-      return ret;
+     SCM vec = scm_make_f64vector(scm_from_int(L), scm_from_double(0.0));
+     scm_t_array_handle handle;
+     size_t len;
+     ssize_t inc;
+     double *elts = scm_f64vector_writable_elements(vec, &handle, &len, &inc);
+     memcpy(elts, A, L * sizeof(double));
+     scm_array_handle_release(&handle);
+     return vec;
   }
 };
 
-%pythoncode %{
-   Vector.__idiv__ = Vector.__itruediv__
-%}
 /*
 linalg/vector.hpp:   void Print(std::ostream &out = mfem::out, int width = 8) const;
 linalg/vector.hpp:   void Print_HYPRE(std::ostream &out) const;
