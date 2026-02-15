@@ -4,6 +4,8 @@
 name: Build and Test (dispatch)
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       test_options:
@@ -114,6 +116,6 @@ jobs:
   # Build and test defaults
   # -------------------------------------------------------------------------------------------------
   test-defaults:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.test_options == 'defaults' }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.test_options == 'defaults') }}
     uses: ./.github/workflows/build-and-test-callable.yml
     name: test-defaults
