@@ -45,6 +45,33 @@ add_guile_mfem_module(vector
   SWIG_FILE mfem/_ser/vector.i
   DEPENDS mfem)
 
+# SWIG Guile -proxy segfaults on linalg/operator.hpp (tested with
+# SWIG 4.3.0 and 4.5.0).  Modules that %include or %import operator.hpp
+# must use NO_PROXY until the SWIG bug is fixed.
+add_guile_mfem_module(operators
+  SWIG_FILE mfem/_ser/operators.i
+  DEPENDS mfem
+  NO_PROXY)
+
+add_guile_mfem_module(matrix
+  SWIG_FILE mfem/_ser/matrix.i
+  DEPENDS mfem
+  NO_PROXY)
+
+add_guile_mfem_module(globals
+  SWIG_FILE mfem/_ser/globals.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(densemat
+  SWIG_FILE mfem/_ser/densemat.i
+  DEPENDS mfem
+  NO_PROXY)
+
+add_guile_mfem_module(sparsemat
+  SWIG_FILE mfem/_ser/sparsemat.i
+  DEPENDS mfem
+  NO_PROXY)
+
 # Tests
 enable_testing()
 add_test(
@@ -60,5 +87,21 @@ add_test(
   COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-vector.scm")
 set_tests_properties(test-vector PROPERTIES
+  LABELS "serial"
+  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+
+add_test(
+  NAME test-densemat
+  COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-densemat.scm")
+set_tests_properties(test-densemat PROPERTIES
+  LABELS "serial"
+  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+
+add_test(
+  NAME test-sparsemat
+  COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-sparsemat.scm")
+set_tests_properties(test-sparsemat PROPERTIES
   LABELS "serial"
   ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}")

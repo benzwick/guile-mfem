@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._ser") matrix
+%module matrix
 
 %feature("autodoc", "1");
 
@@ -9,17 +9,6 @@
 #include <fstream>
 #include <iostream>
 #include "mfem.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/io_stream.hpp"
-#include "../common/pyoperator.hpp"
-%}
-
-%begin %{
-#define PY_SSIZE_T_CLEAN
-%}
-
-%init %{
-import_array1(-1);
 %}
 
 %include "exception.i"

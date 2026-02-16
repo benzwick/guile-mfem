@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module (package="mfem._ser") sparsemat
+%module sparsemat
 %{
 #include <fstream>
 #include <sstream>
@@ -9,17 +9,7 @@
 #include <cmath>
 #include <cstring>
 #include "mfem.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/pyoperator.hpp"
-#include "../common/io_stream.hpp"
 using namespace mfem;
-%}
-// initialization required to return numpy array from SWIG
-%begin %{
-#define PY_SSIZE_T_CLEAN
-%}
-%init %{
-import_array1(-1);
 %}
 
 %include "exception.i"
@@ -38,39 +28,6 @@ import_array1(-1);
 OSTREAM_TYPEMAP(std::ostream&)
 
 %ignore Walk;
-%pythonappend mfem::SparseMatrix::operator*= %{
-    val.thisown = 0
-    return self
-%}
-%pythonappend mfem::SparseMatrix::operator+= %{
-    val.thisown = 0
-    return self
-%}
-
-%pythonprepend mfem::SparseMatrix::SparseMatrix %{
-import numpy as np
-from scipy.sparse import csr_matrix
-if len(args) == 1 and isinstance(args[0], csr_matrix):
-   csr = args[0]
-   if np.real(csr).dtype != 'float64':
-       csr = csr.astype('float64')
-   i = np.ascontiguousarray(csr.indptr)
-   j = np.ascontiguousarray(csr.indices)
-   data = np.ascontiguousarray(csr.data)
-   m, n = csr.shape
-   this = _sparsemat.new_SparseMatrix([i, j, data, m, n])
-   try:
-       self.this.append(this)
-   except __builtin__.Exception:
-       self.this = this
-   _sparsemat.SparseMatrix_SetGraphOwner(self, False)
-   _sparsemat.SparseMatrix_SetDataOwner(self, False)
-   self._i_data = i
-   self._j_data = j
-   self._d_data = data
-
-   return
-%}
 
 // RAP_P, RAP_R replaces RAP, since RAP has two definition one accept
 // pointer and the other accept reference. From Python, two
@@ -97,77 +54,53 @@ if len(args) == 1 and isinstance(args[0], csr_matrix):
   }
 %}
 
-/*
-    support numpy array input to
-    SparseMatrix(int *i, int *j, double *data, int m, int n);
-    allows to use numpy array to call this
- */
-%typemap(in) (int *i, int *j, mfem::real_t *data, int m, int n)
-             (PyArrayObject *tmp_arr1_ = NULL,
-	      PyArrayObject *tmp_arr2_ = NULL,
-	      PyArrayObject *tmp_arr3_ = NULL,
-	      int tmp_4_, int tmp_5_ ){
-  tmp_arr1_ = (PyArrayObject *)PyList_GetItem($input,0);
-  tmp_arr2_ = (PyArrayObject *)PyList_GetItem($input,1);
-  tmp_arr3_ = (PyArrayObject *)PyList_GetItem($input,2);
-  tmp_4_ = PyInt_AsLong(PyList_GetItem($input,3));
-  tmp_5_ = PyInt_AsLong(PyList_GetItem($input,4));
-
-  $1 = (int *) PyArray_DATA(tmp_arr1_);
-  $2 = (int *) PyArray_DATA(tmp_arr2_);
-  $3 = (double *) PyArray_DATA(tmp_arr3_);
-  $4 = (int) tmp_4_;
-  $5 = (int) tmp_5_;
-  //PyArray_CLEARFLAGS(tmp_arr1_, NPY_ARRAY_OWNDATA);
-  //PyArray_CLEARFLAGS(tmp_arr2_, NPY_ARRAY_OWNDATA);
-  //
-  PyArray_CLEARFLAGS(tmp_arr3_, NPY_ARRAY_OWNDATA);
-}
-%typemap(freearg) (int *i, int *j, mfem::real_t *data, int m, int n){
-  //Py_XDECREF(tmp_arr1_$argnum); Dont do this.. We set OwnsGraph and OwnsData to Fase in Python
-  //Py_XDECREF(tmp_arr2_$argnum);
-  //Py_XDECREF(tmp_arr3_$argnum);
-}
-
-%typemap(typecheck ) (int *i, int *j, mfem::real_t *data, int m, int n){
-  /* check if list of 5 numpy array or not */
-  if (!PyList_Check($input)) $1 = 0;
-  else {
-     if (PyList_Size($input) == 5){
-       $1 = 1;
-       if (!PyArray_Check(PyList_GetItem($input,0))) $1 = 0;
-       if (!PyArray_Check(PyList_GetItem($input,1))) $1 = 0;
-       if (!PyArray_Check(PyList_GetItem($input,2))) $1 = 0;
-       if (!PyInt_Check(PyList_GetItem($input,3))) $1 = 0;
-       if (!PyInt_Check(PyList_GetItem($input,4))) $1 = 0;
-     } else $1 = 0;
-  }
-}
-
-
 %include "linalg/sparsemat.hpp"
 
 %extend mfem::SparseMatrix {
-PyObject* GetIArray(void) const{
-  const int * I = self->GetI();
-  int L = self->Size();
+  // Without SWIG Guile -proxy, inherited Operator methods are not
+  // available on derived types.  Provide explicit wrappers.
+  int Height() const { return self->Height(); }
+  int Width() const { return self->Width(); }
 
-  npy_intp dims[] = { L+1 };
-  return  PyArray_SimpleNewFromData(1, dims, NPY_INT, (void *)I);
+  SCM GetIArray(void) const{
+    const int * I = self->GetI();
+    int L = self->Size();
+    SCM vec = scm_make_s32vector(scm_from_int(L + 1), scm_from_int(0));
+    scm_t_array_handle handle;
+    size_t len;
+    ssize_t inc;
+    int32_t *elts = (int32_t *)scm_s32vector_writable_elements(vec, &handle, &len, &inc);
+    memcpy(elts, I, (L + 1) * sizeof(int32_t));
+    scm_array_handle_release(&handle);
+    return vec;
   }
-PyObject* GetJArray(void) const{
-  const int * I = self->GetI();
-  const int * J = self->GetJ();
-  int L = self->Size();
-  npy_intp dims[] = { I[L]};
-  return  PyArray_SimpleNewFromData(1, dims, NPY_INT, (void *)J);
+  SCM GetJArray(void) const{
+    const int * I = self->GetI();
+    const int * J = self->GetJ();
+    int L = self->Size();
+    int nnz = I[L];
+    SCM vec = scm_make_s32vector(scm_from_int(nnz), scm_from_int(0));
+    scm_t_array_handle handle;
+    size_t len;
+    ssize_t inc;
+    int32_t *elts = (int32_t *)scm_s32vector_writable_elements(vec, &handle, &len, &inc);
+    memcpy(elts, J, nnz * sizeof(int32_t));
+    scm_array_handle_release(&handle);
+    return vec;
   }
-PyObject* GetDataArray(void) const{
-  const int * I = self->GetI();
-  const double * A = self->GetData();
-  int L = self->Size();
-  npy_intp dims[] = {I[L]};
-  return  PyArray_SimpleNewFromData(1, dims, NPY_DOUBLE, (void *)A);
+  SCM GetDataArray(void) const{
+    const int * I = self->GetI();
+    const double * A = self->GetData();
+    int L = self->Size();
+    int nnz = I[L];
+    SCM vec = scm_make_f64vector(scm_from_int(nnz), scm_from_double(0.0));
+    scm_t_array_handle handle;
+    size_t len;
+    ssize_t inc;
+    double *elts = scm_f64vector_writable_elements(vec, &handle, &len, &inc);
+    memcpy(elts, A, nnz * sizeof(double));
+    scm_array_handle_release(&handle);
+    return vec;
   }
 };
 
@@ -188,4 +121,3 @@ OSTREAM_ADD_DEFAULT_STDOUT_FILE(SparseMatrix, PrintCSR)
 OSTREAM_ADD_DEFAULT_STDOUT_FILE(SparseMatrix, PrintCSR2)
 OSTREAM_ADD_DEFAULT_STDOUT_FILE(SparseMatrix, PrintInfo)
 #endif
-

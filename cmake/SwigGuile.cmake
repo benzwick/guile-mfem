@@ -37,7 +37,7 @@ find_file(_MFEM_CONFIG_HPP _config.hpp
 message(STATUS "MFEM _config.hpp: ${_MFEM_CONFIG_HPP}")
 
 function(add_guile_mfem_module name)
-  cmake_parse_arguments(ARG "" "SWIG_FILE" "DEPENDS;SWIG_FLAGS" ${ARGN})
+  cmake_parse_arguments(ARG "NO_PROXY" "SWIG_FILE" "DEPENDS;SWIG_FLAGS" ${ARGN})
 
   if(NOT ARG_SWIG_FILE)
     message(FATAL_ERROR "add_guile_mfem_module: SWIG_FILE is required")
@@ -52,13 +52,25 @@ function(add_guile_mfem_module name)
     list(APPEND _swig_inc_flags "-I${_dir}")
   endforeach()
 
+  # SWIG Guile proxy flags: -scmstub -proxy -emit-setters generate a
+  # Scheme proxy module with GOOPS class hierarchy.  SWIG <= 4.5.0
+  # segfaults when these flags are used with linalg/operator.hpp.
+  # Use NO_PROXY to disable them for affected modules.
+  if(ARG_NO_PROXY)
+    set(_proxy_flags "")
+    set(_outputs "${_wrap_cxx}")
+  else()
+    set(_proxy_flags -scmstub -proxy -emit-setters)
+    set(_outputs "${_wrap_cxx}" "${_scm_stub}")
+  endif()
+
   # Run SWIG to generate wrapper
   add_custom_command(
-    OUTPUT "${_wrap_cxx}" "${_scm_stub}"
+    OUTPUT ${_outputs}
     COMMAND ${SWIG_EXECUTABLE}
-      -c++ -guile -scmstub
+      -c++ -guile
       -Linkage module
-      -proxy -emit-setters
+      ${_proxy_flags}
       -DSWIG_TYPE_TABLE=GuileMFEM
       -DMFEM_DEPRECATED=
       ${_swig_inc_flags}
