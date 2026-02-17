@@ -1,18 +1,12 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._ser") symmat
+%module symmat
 %{
 #include  "mfem.hpp"
 #include "linalg/symmat.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/io_stream.hpp"
-#include "../common/pyoperator.hpp"
 %}
 
-%init %{
-import_array1(-1);
-%}
 %include "exception.i"
 
 %import "globals.i"

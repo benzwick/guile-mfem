@@ -72,6 +72,16 @@ add_guile_mfem_module(sparsemat
   DEPENDS mfem
   NO_PROXY)
 
+add_guile_mfem_module(mesh
+  SWIG_FILE mfem/_ser/mesh.i
+  DEPENDS mfem
+  NO_PROXY)
+
+add_guile_mfem_module(fe_coll
+  SWIG_FILE mfem/_ser/fe_coll.i
+  DEPENDS mfem
+  NO_PROXY)
+
 # Tests
 enable_testing()
 add_test(
@@ -103,5 +113,13 @@ add_test(
   COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-sparsemat.scm")
 set_tests_properties(test-sparsemat PROPERTIES
+  LABELS "serial"
+  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+
+add_test(
+  NAME test-mesh
+  COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-mesh.scm")
+set_tests_properties(test-mesh PROPERTIES
   LABELS "serial"
   ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}")

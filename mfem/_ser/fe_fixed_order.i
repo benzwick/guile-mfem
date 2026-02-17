@@ -1,17 +1,11 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._ser") fe_fixed_order
+%module fe_fixed_order
 %{
 #include  "mfem.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/pyoperator.hpp"
-#include "../common/pyintrules.hpp"
 %}
 
-%init %{
-import_array1(-1);
-%}
 %include "exception.i"
 %import "fe.i"
 %import "fe_base.i"

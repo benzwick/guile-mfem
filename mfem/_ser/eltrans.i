@@ -1,18 +1,10 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module (package="mfem._ser") eltrans
+%module eltrans
 
 %{
 #include "mfem.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/pyoperator.hpp"
-#include "../common/io_stream.hpp"
-#include "../common/pyintrules.hpp"
-%}
-
-%init %{
-import_array1(-1);
 %}
 
 %include "exception.i"
@@ -26,19 +18,6 @@ import_array1(-1);
 %import "geom.i"
 %import "../common/exception.i"
 %import "../common/mfem_config.i"
-
-%feature("shadow") mfem::ElementTransformation::Transform %{
-def Transform(self, *args):
-    from .vector import Vector
-    from .intrules import IntegrationPoint
-    if isinstance(args[0], IntegrationPoint):
-        vec = Vector()
-        _eltrans.ElementTransformation_Transform(self, args[0], vec)
-        ret = vec.GetDataArray().copy()
-        return ret
-    else:
-        return _eltrans.ElementTransformation_Transform(self, *args)
-%}
 
 %include "../common/deprecation.i"
 DEPRECATED_METHOD(mfem::IsoparametricTransformation::FinalizeTransformation())
@@ -70,10 +49,4 @@ namespace mfem{
    };  //end of extend
   #endif
  } //end of namespace
-
-%pythoncode %{
-if hasattr(IsoparametricTransformation, "_TransformBack"):
-    IsoparametricTransformation.TransformBack = IsoparametricTransformation._TransformBack
-%}
-
 

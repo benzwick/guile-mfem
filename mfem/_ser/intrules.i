@@ -1,22 +1,15 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module (package="mfem._ser") intrules
+%module intrules
 
 %{
 #include "fem/intrules.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/pyintrules.hpp"
-%}
-
-%init %{
-import_array1(-1);
 %}
 
 %include "exception.i"
 %import "../common/exception.i"
 %import "array.i"
-%import "../common/numpy_int_typemap.i"
 %import "mem_manager.i"
 
 %immutable IntRules;
@@ -38,7 +31,4 @@ IGNORE_ARRAY_METHODS(mfem::IntegrationRule *)
 INSTANTIATE_ARRAY0(IntegrationRule *, IntegrationRule, 1)
 
 %include "fem/intrules.hpp"
-
-%feature("director") mfem::PyIntegrationRule;
-%include "../common/pyintrules.hpp"
 

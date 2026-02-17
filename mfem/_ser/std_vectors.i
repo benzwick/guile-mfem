@@ -1,31 +1,18 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._ser") std_vectors
+%module std_vectors
 //
 //  std_vectors :
 //     this modules gather all std::vector based object
-//     the reason why we have this module is %include "std_vector.i"
-//     can not be imported. Otherwise, SWIGPY_SLICE_ARG is not decleared
-//     in a module which imports i file where std_vector.i is imported.
 %{
 #include <vector>
 #include "mfem.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/pyoperator.hpp"
-#include "../common/pycoefficient.hpp"
-#include "../common/io_stream.hpp"
 %}
 
-
-%init %{
-import_array1(-1);
-%}
 
 %include "exception.i"
 %import "array.i"
-//%import "mesh.i"
-//%import "vector.i"
 
 %include "std_vector.i"
 %template(vector_int) std::vector<int>;
@@ -34,6 +21,3 @@ import_array1(-1);
 %template(vector_FiniteElementSpace) std::vector<mfem::FiniteElementSpace *>;
 %template(vector_Mesh) std::vector<mfem::Mesh *>;
 %template(vector_SparseMatrix) std::vector<mfem::SparseMatrix *>;
-
-
-

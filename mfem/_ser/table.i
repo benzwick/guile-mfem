@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._ser") table
+%module table
 
 %feature("autodoc", "1");
 
@@ -9,20 +9,12 @@
 #include <fstream>
 #include <iostream>
 #include "mfem.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/io_stream.hpp"
 #include "general/table.hpp"
-%}
-
-// initialization required to return numpy array from SWIG
-%init %{
-import_array1(-1);
 %}
 
 %include "exception.i"
 %import "array.i"
 %import "../common/ignore_common_functions.i"
-%import "../common/numpy_int_typemap.i"
 %import "../common/exception.i"
 
 %import "../common/io_stream_typemap.i"
@@ -33,20 +25,6 @@ OSTREAM_TYPEMAP(std::ostream&)
 %ignore mfem::Table::ReadWriteJ();
 
 %include "general/table.hpp"
-
-%extend mfem::Table {
-PyObject* GetRowList(int i) const{
-     const int *row = self->GetRow(i);
-     int L = self->RowSize(i);
-     int kk = 0;
-     PyObject *o;
-     o = PyList_New(L);
-     for (kk =0; kk < L; kk ++){
-       PyList_SetItem(o, kk, PyLong_FromLong((long) *(row + kk)));
-     }
-     return o;
-  }
-};
 
 /*
   void Print(std::ostream & out = mfem::out, int width = 4) const;

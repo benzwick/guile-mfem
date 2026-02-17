@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._ser") fespace
+%module fespace
 %feature("autodoc", "1");
 %{
 #include <iostream>
@@ -12,15 +12,6 @@
 #include <cstring>
 #include <ctime>
 #include "mfem.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/io_stream.hpp"
-#include "../common/pyoperator.hpp"
-#include "../common/pycoefficient.hpp"
-#include "../common/pyintrules.hpp"
-%}
-
-%init %{
-import_array1(-1);
 %}
 
 %include "exception.i"
@@ -45,131 +36,6 @@ import_array1(-1);
 %import "../common/io_stream_typemap.i"
 OSTREAM_TYPEMAP(std::ostream&)
 ISTREAM_TYPEMAP(std::istream&)
-
-// default number is -1, which conflict with error code of PyArray_PyIntAsInt...
-%typemap(typecheck) (int ndofs = -1) {
-   $1 = PyInt_Check($input) ? 1 : 0;
-}
-%typemap(typecheck) (int component = -1) {
-   $1 = PyInt_Check($input) ? 1 : 0;
-}
-
-
-//VDoF accesser
-%feature("shadow") mfem::FiniteElementSpace::GetBdrElementVDofs %{
-def GetBdrElementVDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetElementVDofs %{
-def GetElementVDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetFaceVDofs %{
-def GetFaceVDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetEdgeVDofs %{
-def GetEdgeVDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetVertexVDofs %{
-def GetVertexVDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetElementInteriorVDofs %{
-def GetElementInteriorVDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetEdgeInteriorVDofs %{
-def GetEdgeInteriorVDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-
-//DoF accesser
-%feature("shadow") mfem::FiniteElementSpace::GetBdrElementDofs %{
-def GetBdrElementDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetElementDofs %{
-def GetElementDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetFaceDofs %{
-def GetFaceDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetEdgeDofs %{
-def GetEdgeDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetVertexDofs %{
-def GetVertexDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetElementInteriorDofs %{
-def GetElementInteriorDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-%feature("shadow") mfem::FiniteElementSpace::GetEdgeInteriorDofs %{
-def GetEdgeInteriorDofs(self, i):
-    from  .array import intArray
-    vdofs = intArray()
-    $action(self, i, vdofs)
-    return vdofs.ToList()
-%}
-
-%pythonappend mfem::FiniteElementSpace::FiniteElementSpace%{
-
-    '''
-        FiniteElementSpace(Mesh *m, const FiniteElementCollection *f,
-                      int vdim = 1, int ordering = Ordering::byNODES);
-        keep reference to mesh and fec to prevent it from
-        freeed from pytho garbage collector
-    '''
-    if hasattr(self, 'this'):
-        self.mesh = args[0]
-        self.fec = args[1]
-
-%}
 
 /* define FiniteElementSpacePtrArray */
 %import "../common/array_listtuple_typemap.i"

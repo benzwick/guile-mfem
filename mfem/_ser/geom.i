@@ -1,18 +1,9 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._ser") geom
+%module geom
 %{
 #include "mfem.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/io_stream.hpp"
-#include "../common/pyoperator.hpp"
-#include "../common/pyintrules.hpp"
-#include "../common/pybilininteg.hpp"
-%}
-
-%init %{
-import_array1(-1);
 %}
 
 %include "exception.i"
@@ -22,9 +13,6 @@ import_array1(-1);
 
 %immutable RefPts;
 %immutable GlobGeometryRefiner;
-
-%import "../common/array_listtuple_typemap.i"
-ARRAY_LISTTUPLE_INPUT(mfem::Geometry::Type, PyLong_AsLong)
 
 %include "fem/geom.hpp"
 
@@ -54,8 +42,4 @@ namespace mfem{
      return (* self)[i];
  }
 };
-
-%pythoncode %{
-Geometries = Geometry()
-%}
 
