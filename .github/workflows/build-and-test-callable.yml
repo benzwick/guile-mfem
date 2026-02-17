@@ -165,6 +165,7 @@ jobs:
           ${{ inputs.cuda && '-DMFEM_USE_CUDA=ON' || '' }}
         cmake --build mfem-build -j$(nproc)
         cmake --install mfem-build
+        cp -r mfem-src/data ${{ github.workspace }}/mfem-install/data
 
     - name: Build SWIG bindings + guile-mfem (steps 2-3)
       run: cmake -B build ${{ env.cmake-flags }} && cmake --build build -j$(nproc)

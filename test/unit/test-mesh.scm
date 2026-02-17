@@ -1,8 +1,7 @@
 (use-modules (srfi srfi-64))
 
-;; Source directory (two levels up from this test file)
-(define source-dir
-  (dirname (dirname (dirname (current-filename)))))
+;; MFEM data directory (set by CTest via MFEM_DATA_DIR environment variable)
+(define mfem-data-dir (getenv "MFEM_DATA_DIR"))
 
 ;; Load C extensions (dependencies must be loaded first for SWIG type table)
 (load-extension "mem_manager" "scm_init_mem_manager_module")
@@ -52,7 +51,7 @@
 
 ;; Mesh from file
 (test-group "from-file"
-  (let ((m (new-Mesh (string-append source-dir "/_reference/mfem/data/star.mesh") 1 1)))
+  (let ((m (new-Mesh (string-append mfem-data-dir "/star.mesh") 1 1)))
     (test-equal "star Dimension" 2 (Mesh-Dimension m))
     (test-assert "star GetNE > 0" (> (Mesh-GetNE m) 0))
     (delete-Mesh m)))

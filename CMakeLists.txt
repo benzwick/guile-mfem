@@ -120,6 +120,14 @@ add_test(
   NAME test-mesh
   COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-mesh.scm")
+if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/_reference/mfem/data")
+  set(MFEM_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_reference/mfem/data")
+elseif(IS_DIRECTORY "${MFEM_DIR}/data")
+  set(MFEM_DATA_DIR "${MFEM_DIR}/data")
+else()
+  message(FATAL_ERROR "MFEM data directory not found")
+endif()
+message(STATUS "MFEM data: ${MFEM_DATA_DIR}")
 set_tests_properties(test-mesh PROPERTIES
   LABELS "serial"
-  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};MFEM_DATA_DIR=${MFEM_DATA_DIR}")
