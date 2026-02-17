@@ -120,13 +120,13 @@ add_test(
   NAME test-mesh
   COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-mesh.scm")
-if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/_reference/mfem/data")
-  set(MFEM_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_reference/mfem/data")
-elseif(IS_DIRECTORY "${MFEM_DIR}/data")
-  set(MFEM_DATA_DIR "${MFEM_DIR}/data")
-else()
-  message(FATAL_ERROR "MFEM data directory not found")
-endif()
+# Find MFEM data directory for tests.
+# _SWIG_MFEM_INCDIRS comes from the mfem target's INTERFACE_INCLUDE_DIRECTORIES.
+# In the build tree the source dir (e.g. _reference/mfem) is listed; in an
+# installed layout the include dir (e.g. mfem-install/include) is listed.
+# Either way, data/ is a sibling under the same parent.
+list(GET _SWIG_MFEM_INCDIRS 0 _incdir)
+get_filename_component(MFEM_DATA_DIR "${_incdir}/../data" ABSOLUTE)
 message(STATUS "MFEM data: ${MFEM_DATA_DIR}")
 set_tests_properties(test-mesh PROPERTIES
   LABELS "serial"
