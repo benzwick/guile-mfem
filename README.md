@@ -9,12 +9,7 @@ Forked from [PyMFEM](https://github.com/mfem/PyMFEM).
 
 This example solves the Poisson problem $-\Delta u = 1$
 with zero Dirichlet boundary conditions
-(see `examples/ex0-lisp.scm`):
-
-```shell
-$ guile -L build examples/ex0-lisp.scm
-$ guile -L build examples/ex0-lisp.scm -- -m data/fichera.mesh -o 2
-```
+(from `examples/ex0-lisp.scm`):
 
 ```scheme
 (use-modules (oop goops) (mfem) (ice-9 getopt-long))
@@ -50,6 +45,13 @@ $ guile -L build examples/ex0-lisp.scm -- -m data/fichera.mesh -o 2
         (RecoverFEMSolution a X b x))
       (Save x "sol.gf")
       (Save mesh "mesh.mesh"))))
+```
+
+Run it:
+
+```shell
+$ guile -L build examples/ex0-lisp.scm
+$ guile -L build examples/ex0-lisp.scm -- -m data/fichera.mesh -o 2
 ```
 
 ## Install
