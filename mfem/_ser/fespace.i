@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module fespace
+%insert("goops") %{(use-modules (array) (eltrans) (intrules) (mesh) (operators) (sparsemat) (vector))%}
 %feature("autodoc", "1");
 %{
 #include <iostream>

@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._ser") enzyme
+%module enzyme
 %{
 #include "mfem.hpp"
 %}

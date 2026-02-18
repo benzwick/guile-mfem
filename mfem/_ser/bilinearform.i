@@ -1,21 +1,13 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._ser", directors="1")  bilinearform
+%module bilinearform
+%insert("goops") %{(use-modules (array) (bilininteg) (densemat) (fespace) (handle) (lininteg) (matrix) (operators) (sparsemat) (vector))%}
 %{
 #include "fem/bilinearform.hpp"
-#include "numpy/arrayobject.h"
-#include "../common/io_stream.hpp"  
-#include "../common/pyoperator.hpp"
-#include "../common/pycoefficient.hpp"
-#include "../common/pyintrules.hpp"
-#include "../common/pybilininteg.hpp"
 using namespace mfem;
 %}
 
-%init %{
-import_array1(-1);
-%}
 %include "exception.i"
 
 %import "globals.i"
@@ -35,103 +27,13 @@ import_array1(-1);
 %import "gridfunc.i"
 %import "hybridization.i"
 %import "staticcond.i"
-%include "../common/exception_director.i"
 
-//%feature("director") mfem::BilinearForm;
+// Transfer ownership of integrators to BilinearForm/MixedBilinearForm.
+// C++ deletes them in the destructor; prevent Guile GC from doing the same.
+%apply SWIGTYPE *DISOWN { mfem::BilinearFormIntegrator *bfi };
 
- //%include "fem/coefficient.hpp"
-namespace mfem {
-%pythonprepend BilinearForm::AddDomainIntegrator %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    bfi = args[0]
-    self._integrators.append(bfi)
-    self.UseExternalIntegrators()
-    #bfi.thisown=0
-    %}
-%pythonprepend BilinearForm::AddBoundaryIntegrator %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    bfi = args[0]
-    self._integrators.append(bfi)
-    self.UseExternalIntegrators()
-    #bfi.thisown=0
-   %}
-%pythonprepend BilinearForm::AddBdrFaceIntegrator %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    bfi = args[0]
-    self._integrators.append(bfi)
-    self.UseExternalIntegrators()
-    #bfi.thisown=0
-   %}
-%pythonprepend BilinearForm::AddInteriorFaceIntegrator %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    self._integrators.append(bfi)
-    self.UseExternalIntegrators()
-    #bfi.thisown=0
-   %}
-%pythonappend BilinearForm::SpMat %{
-    if not hasattr(self, "_spmat"): self._spmat = []
-    self._spmat.append(val)
-    val.thisown=0
-   %}
-%pythonappend BilinearForm::EnableHybridization %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    self._integrators.append(constr_integ)
-    # constr_integ is deleted by Hybridization destructor
-    constr_integ.thisown = 0
-   %}
-%pythonprepend MixedBilinearForm::AddDomainIntegrator %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    bfi = args[0]
-    self._integrators.append(bfi)
-    bfi.thisown=0
-   %}
-%pythonprepend MixedBilinearForm::AddBoundaryIntegrator %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    bfi = args[0]
-    self._integrators.append(bfi)
-    bfi.thisown=0
-   %}
-%pythonprepend MixedBilinearForm::AddTraceFaceIntegrator %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    self._integrators.append(bfi)
-    bfi.thisown=0
-   %}
-%pythonprepend MixedBilinearForm::AddBdrTraceFaceIntegrator %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    bfi = args[0]
-    self._integrators.append(bfi)
-    self.UseExternalIntegrators()
-    #bfi.thisown=0
-   %}
-%pythonappend MixedBilinearForm::SpMat %{
-    if not hasattr(self, "_spmat"): self._spmat = []
-    self._spmat.append(val)
-    val.thisown=0
-   %}
-%pythonprepend DiscreteLinearOperator::AddDomainInterpolator %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    di = args[0]
-    self._integrators.append(di)
-    di.thisown=0
-   %}
-%pythonprepend DiscreteLinearOperator::AddTraceFaceInterpolator %{
-    if not hasattr(self, "_integrators"): self._integrators = []
-    di = args[0]
-    self._integrators.append(di)
-    di.thisown=0
-    %}
-} //end of namespace
-
-/* define BilinearFormPtrArray */
 %include "../common/deprecation.i"
 DEPRECATED_METHOD(mfem::BilinearForm::GetFES())
-
-/* define IntegrationPointArray and IntegrationRulePtrArray */
-%import "../common/array_listtuple_typemap.i"
-ARRAY_LISTTUPLE_INPUT_SWIGOBJ(mfem::BilinearForm *, 1)
-
-%import "../common/data_size_typemap.i"
-XXXPTR_SIZE_IN(mfem::BilinearForm **data_, int asize, mfem::BilinearForm *)
 
 %import "../common/array_instantiation_macro.i"
 IGNORE_ARRAY_METHODS(mfem::BilinearForm *)

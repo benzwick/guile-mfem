@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module bilininteg
+%insert("goops") %{(use-modules (array) (densemat) (eltrans) (fe) (fespace) (integrator) (intrules) (nonlininteg) (operators) (sparsemat) (vector))%}
 %{
 #include "mfem.hpp"
 %}
@@ -26,6 +27,11 @@
 %import "nonlininteg.i"
 
 %ignore  mfem::MassIntegrator::SetupPA;
+
+// Ignore overridden methods that lost default args in derived classes
+%ignore mfem::TransposeIntegrator::AssembleEAInteriorFaces;
+%ignore mfem::SumIntegrator::AssembleEAInteriorFaces;
+%ignore mfem::DGTraceIntegrator::AssembleEAInteriorFaces;
 
 %include "../common/kernel_dispatch.i"
 %include "fem/bilininteg.hpp"

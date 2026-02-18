@@ -1,15 +1,10 @@
 //
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
-%module(package="mfem._ser") sparsesmoothers
+%module sparsesmoothers
+%insert("goops") %{(use-modules (matrix) (operators) (vector))%}
 %{
 #include "linalg/sparsesmoothers.hpp"
-#include "../common/pyoperator.hpp"
-#include "numpy/arrayobject.h"
-%}
-
-%init %{
-import_array1(-1);
 %}
 
 %include "exception.i"
@@ -20,22 +15,3 @@ import_array1(-1);
 %import "../common/exception.i"
 
 %include "linalg/sparsesmoothers.hpp"
-
- // this should not be necessary.
- // dynamic_cast at DSO boundary issue...
-/*
-%extend mfem::SparseSmoother{
-  //  void mfem::SparseSmoother::SetOperator(const SparseMatrix &a) {
-  void SetOperator(mfem::SparseMatrix &a) {
-    std::cout << "this is called\n";
-    std::cout << std::to_string(a.Height()) << "\n";
-    mfem::SparseMatrix *b = new mfem::SparseMatrix(a);
-    $self->SetOperator(*b);
-  }
-};
-*/
-
-
-
-
-

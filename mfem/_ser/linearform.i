@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module linearform
+%insert("goops") %{(use-modules (fespace) (lininteg) (vector))%}
 %{
 #include <iostream>
 #include <sstream>
@@ -25,6 +26,10 @@
 %import "vector.i"
 %import "eltrans.i"
 %import "lininteg.i"
+
+// Transfer ownership of integrators to LinearForm.
+// C++ deletes them in the destructor; prevent Guile GC from doing the same.
+%apply SWIGTYPE *DISOWN { mfem::LinearFormIntegrator *lfi };
 
 %include "../common/deprecation.i"
 DEPRECATED_METHOD(mfem::LinearForm::GetFES())

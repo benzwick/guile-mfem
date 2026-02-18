@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module lininteg
+%insert("goops") %{(use-modules (array) (eltrans) (fe) (fespace) (integrator) (intrules) (operators) (vector))%}
 %{
 #include <iostream>
 #include <sstream>

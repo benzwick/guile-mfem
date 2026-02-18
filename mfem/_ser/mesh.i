@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module mesh
+%insert("goops") %{(use-modules (array) (vector) (operators) (matrix) (densemat) (sparsemat) (intrules) (eltrans) (fe) (coefficient))%}
 
 %{
 #include <iostream>

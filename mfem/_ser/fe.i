@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module fe
+%insert("goops") %{(use-modules (array) (densemat) (intrules) (vector))%}
 
 %{
 #include <iostream>
@@ -19,7 +20,7 @@
 %import "intrules.i"
 %import "densemat.i"
 %import "sparsemat.i"
-%import "fe_base.i"
+%include "fe_base.i"
 %import "fe_fixed_order.i"
 %import "fe_h1.i"
 %import "fe_nd.i"

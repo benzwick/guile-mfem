@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module symmat
+%insert("goops") %{(use-modules (matrix))%}
 %{
 #include  "mfem.hpp"
 #include "linalg/symmat.hpp"

@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module eltrans
+%insert("goops") %{(use-modules (array) (densemat) (fe) (intrules) (vector))%}
 
 %{
 #include "mfem.hpp"
