@@ -1,13 +1,15 @@
-#  MFEM + guile-mfem (FEM library)
+# Guile-MFEM: GNU Guile bindings for MFEM
 
-This repository provides GNU Guile binding for MFEM. MFEM is a high performance parallel finite element method (FEM) library (http://mfem.org/).
-
-Forked from [PyMFEM](https://github.com/mfem/PyMFEM) and adapted to target Guile 3.0 via SWIG.
+Guile-MFEM brings [MFEM](https://mfem.org/),
+a high-performance finite element method (FEM) library,
+to GNU Guile 3.0 via SWIG.
+Forked from [PyMFEM](https://github.com/mfem/PyMFEM).
 
 ## Usage
 
-This example solves the Poisson problem $-\Delta u = 1$ with zero Dirichlet
-boundary conditions (see `examples/ex0-lisp.scm`):
+This example solves the Poisson problem $-\Delta u = 1$
+with zero Dirichlet boundary conditions
+(see `examples/ex0-lisp.scm`):
 
 ```shell
 $ guile -L build examples/ex0-lisp.scm
@@ -51,7 +53,8 @@ $ guile -L build examples/ex0-lisp.scm -- -m data/fichera.mesh -o 2
 ```
 
 ## Install
-### Build from source (Serial MFEM)
+
+### Build from source
 ```shell
 $ git clone https://github.com/benzwick/guile-mfem.git
 $ cd guile-mfem
@@ -59,29 +62,24 @@ $ cmake -B build -DMFEM_DIR=/path/to/mfem
 $ cmake --build build -j$(nproc)
 ```
 
-### Build with additional features (MPI, GPU, GSLIB, libCEED)
+Optional features: `-DGUILE_MFEM_USE_MPI=ON`, `-DGUILE_MFEM_USE_CUDA=ON`,
+`-DGUILE_MFEM_USE_GSLIB=ON`, `-DGUILE_MFEM_USE_LIBCEED=ON`.
 
+### Run tests
 ```shell
-$ cmake -B build -DMFEM_DIR=/path/to/mfem -DGUILE_MFEM_USE_MPI=ON
-$ cmake --build build -j$(nproc)
-```
-
-#### Cleaning
-```shell
-$ rm -rf build
-```
-#### Run test
-```shell
-cd build && ctest --output-on-failure
+$ cd build
+$ ctest --output-on-failure
 ```
 
 ## License
-guile-mfem is licensed under BSD-3 license. All new contributions
-must be made under this license. See [License](LICENSE) for details.
 
-Please refer the developers' web sites for the external libraries
-* MFEM: https://mfem.org/
-* Hypre: https://computing.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods
-* METIS: http://glaros.dtc.umn.edu/gkhome/metis/metis/overview
-* libceed: https://github.com/CEED/libCEED
-* gslib: https://github.com/Nek5000/gslib
+Guile-MFEM is licensed under BSD-3. See [LICENSE](LICENSE) for details.
+
+## Related projects
+
+* [MFEM](https://mfem.org/)
+* [PyMFEM](https://github.com/mfem/PyMFEM)
+* [Hypre](https://computing.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods)
+* [METIS](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
+* [libCEED](https://github.com/CEED/libCEED)
+* [gslib](https://github.com/Nek5000/gslib)
