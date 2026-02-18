@@ -18,22 +18,12 @@ applications?
 The simplest change: flatten `let*` to top-level `define` + bare expressions.
 
 ```scheme
-;; MFEM Example 0 — Poisson: -Delta u = 1, u|dOmega = 0
-(use-modules (oop goops) (mfem) (ice-9 getopt-long))
-
-;; 1. Parse command line
-(define option-spec
-  '((mesh  (single-char #\m) (value #t))
-    (order (single-char #\o) (value #t))))
-(define options (getopt-long (command-line) option-spec))
-(define mesh-file (option-ref options 'mesh "../data/star.mesh"))
-(define order (string->number (option-ref options 'order "1")))
-
-;; 2. Mesh
+;; 2. Read the mesh from the given mesh file, and refine once uniformly.
 (define mesh (make <Mesh> mesh-file 1 1))
 (UniformRefinement mesh)
 
-;; 3. Finite element space
+;; 3. Define a finite element space on the mesh. Here we use H1 continuous
+;;    high-order Lagrange finite elements of the given order.
 (define fec (make <H1-FECollection> order (Dimension mesh)))
 (define fespace (make <FiniteElementSpace> mesh fec))
 (format #t "Number of unknowns: ~a~%" (GetTrueVSize fespace))
@@ -178,6 +168,36 @@ extra, and mirrors MFEM's C++ examples closely (which is the primary
 documentation). Approach B can be used where it makes sense (solver utilities,
 reusable setup functions).
 
+### Structural correspondence with C++ examples
+
+Ported MFEM examples should preserve the structure of the C++ originals as
+closely as possible so that the two files can be compared side by side. This
+means:
+
+- **Same numbered comments.** Use the identical comment text from the C++
+  source (steps 1 through N), adapted only for Scheme comment syntax (`;;`
+  instead of `//`).
+- **Same variable names.** Translate C++ identifiers to Scheme conventions
+  (`mesh_file` → `mesh-file`, `boundary_dofs` → `boundary-dofs`) but do not
+  rename them or introduce new names.
+- **Same blank-line structure.** One blank line between steps, matching the
+  C++ layout.
+- **Same header block.** Preserve the title, sample runs, and description
+  from the C++ header, adapted for Guile invocation.
+
+The goal is that an MFEM user reading the C++ example can immediately find the
+corresponding code in the Scheme version without any mental mapping.
+
+### Miniapps and original Guile programs
+
+The structural correspondence requirement applies specifically to ported MFEM
+examples (`ex0`, `ex1`, ..., `ex0p`, `ex1p`, ...). Miniapps and original
+Guile programs that have no C++ counterpart are free to use more idiomatic
+Scheme style — Approach B for reusable components, keyword arguments, multiple
+return values, and other Guile conventions as appropriate.
+
+### Roadmap
+
 **Grow toward Approach C** organically: as more examples are ported (ex1
 through ex5+), common patterns will emerge. Extract helpers only when the same
 boilerplate appears in 3+ examples.
@@ -193,10 +213,13 @@ Each layer builds on the previous one, and users can drop down to any level.
 ## Consequences
 
 - Examples read like transliterated C++, lowering the barrier for MFEM users
-  coming from C++.
+  coming from C++. A user can `diff` the C++ and Scheme versions and see only
+  the language differences.
 - Every variable is available at the REPL after pasting a block, which helps
   new users explore.
 - Examples are not reusable as library functions. This is acceptable because
   MFEM's own C++ examples are also standalone `main()` programs.
+- Miniapps and original Guile programs can adopt idiomatic Scheme conventions
+  without conflicting with the example porting guidelines.
 - A future convenience layer (Approach C) can be introduced without changing
   existing examples — it would be a new `(mfem convenience)` module.
