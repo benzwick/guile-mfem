@@ -1,3 +1,6 @@
+;; SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+;; SPDX-License-Identifier: BSD-3-Clause
+
 ;;                                MFEM Example 0
 ;;
 ;; Sample runs:  guile -L build ex0-lisp.scm

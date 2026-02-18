@@ -1,3 +1,6 @@
+;; SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+;; SPDX-License-Identifier: BSD-3-Clause
+
 ;;; (mfem) — umbrella module re-exporting all MFEM bindings.
 ;;;
 ;;; Usage:

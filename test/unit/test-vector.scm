@@ -1,3 +1,6 @@
+;; SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+;; SPDX-License-Identifier: BSD-3-Clause
+
 (use-modules (srfi srfi-4)
              (srfi srfi-64)
              (mfem vector))

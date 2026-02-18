@@ -1,3 +1,6 @@
+;; SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+;; SPDX-License-Identifier: BSD-3-Clause
+
 (use-modules (srfi srfi-64)
              (mfem mesh) (mfem fe_coll))
 ;; Primitive API names (new-Mesh etc.) not exported by the GOOPS proxy
