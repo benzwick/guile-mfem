@@ -10,11 +10,10 @@
 
 (test-group "poisson"
   (let* ((mesh-file (string-append mfem-data-dir "/star.mesh"))
-         (rc (system* "env"
-                      (string-append "MFEM_MESH=" mesh-file)
-                      "guile"
+         (rc (system* "guile"
                       "-L" guile-load-path
-                      ex0-script)))
+                      ex0-script
+                      "--" "-m" mesh-file)))
     (test-assert "ex0-lisp exits successfully" (zero? (status:exit-val rc)))
     (test-assert "sol.gf exists" (file-exists? "sol.gf"))
     (test-assert "mesh.mesh exists" (file-exists? "mesh.mesh"))

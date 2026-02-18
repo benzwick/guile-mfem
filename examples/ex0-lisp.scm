@@ -1,15 +1,27 @@
-;;                                MFEM Example 0 (Lisp style)
+;;                                MFEM Example 0
 ;;
 ;; Sample runs:  guile -L build ex0-lisp.scm
+;;               guile -L build ex0-lisp.scm -- -m ../data/fichera.mesh
+;;               guile -L build ex0-lisp.scm -- -m ../data/square-disc.mesh -o 2
 ;;
-;; Description: Solve -Δu = 1, u|∂Ω = 0 on the star mesh.
+;; Description: This example code demonstrates the most basic usage of MFEM to
+;;              define a simple finite element discretization of the Poisson
+;;              problem -Delta u = 1 with zero Dirichlet boundary conditions.
+;;              General 2D/3D mesh files and finite element polynomial degrees
+;;              can be specified by command line options.
 
-(use-modules (oop goops) (mfem))
+(use-modules (oop goops) (mfem) (ice-9 getopt-long))
 
-(let ((mesh (make <Mesh> (or (getenv "MFEM_MESH") "star.mesh") 1 1)))
+(let* ((options (getopt-long (command-line)
+                  '((mesh  (single-char #\m) (value #t))
+                    (order (single-char #\o) (value #t)))))
+       (mesh-file (option-ref options 'mesh "../data/star.mesh"))
+       (order (string->number (option-ref options 'order "1")))
+       (mesh (make <Mesh> mesh-file 1 1)))
   (UniformRefinement mesh)
   (let ((fespace (make <FiniteElementSpace> mesh
-                   (make <H1-FECollection> 1 (Dimension mesh)))))
+                   (make <H1-FECollection> order (Dimension mesh)))))
+    (format #t "Number of unknowns: ~a~%" (GetTrueVSize fespace))
     (let ((x (make <GridFunction> fespace))
           (b (make <LinearForm> fespace))
           (a (make <BilinearForm> fespace)))

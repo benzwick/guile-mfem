@@ -6,16 +6,27 @@ Forked from [PyMFEM](https://github.com/mfem/PyMFEM) and adapted to target Guile
 
 ## Usage
 
-Solve the Poisson equation $-\Delta u = 1$ with zero Dirichlet boundary
-conditions on the star mesh (`examples/ex0-lisp.scm`):
+This example solves the Poisson problem $-\Delta u = 1$ with zero Dirichlet
+boundary conditions (see `examples/ex0-lisp.scm`):
+
+```shell
+$ guile -L build examples/ex0-lisp.scm
+$ guile -L build examples/ex0-lisp.scm -- -m data/fichera.mesh -o 2
+```
 
 ```scheme
-(use-modules (oop goops) (mfem))
+(use-modules (oop goops) (mfem) (ice-9 getopt-long))
 
-(let ((mesh (make <Mesh> "star.mesh" 1 1)))
+(let* ((options (getopt-long (command-line)
+                  '((mesh  (single-char #\m) (value #t))
+                    (order (single-char #\o) (value #t)))))
+       (mesh-file (option-ref options 'mesh "../data/star.mesh"))
+       (order (string->number (option-ref options 'order "1")))
+       (mesh (make <Mesh> mesh-file 1 1)))
   (UniformRefinement mesh)
   (let ((fespace (make <FiniteElementSpace> mesh
-                   (make <H1-FECollection> 1 (Dimension mesh)))))
+                   (make <H1-FECollection> order (Dimension mesh)))))
+    (format #t "Number of unknowns: ~a~%" (GetTrueVSize fespace))
     (let ((x (make <GridFunction> fespace))
           (b (make <LinearForm> fespace))
           (a (make <BilinearForm> fespace)))
