@@ -25,4 +25,4 @@ cmake --build "${BUILD}" -j"$(nproc)"
 
 # Run tests
 echo "=== Running tests ==="
-cd "${BUILD}" && ctest --output-on-failure -L serial
+ctest --test-dir "${BUILD}" --output-on-failure -L serial
