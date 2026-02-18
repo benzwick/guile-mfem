@@ -12,12 +12,13 @@
 
 (use-modules (oop goops) (mfem) (ice-9 getopt-long))
 
-(let* ((options (getopt-long (command-line)
-                  '((mesh  (single-char #\m) (value #t))
-                    (order (single-char #\o) (value #t)))))
-       (mesh-file (option-ref options 'mesh "../data/star.mesh"))
-       (order (string->number (option-ref options 'order "1")))
-       (mesh (make <Mesh> mesh-file 1 1)))
+(define options (getopt-long (command-line)
+                 '((mesh  (single-char #\m) (value #t))
+                   (order (single-char #\o) (value #t)))))
+(define mesh-file (option-ref options 'mesh "../data/star.mesh"))
+(define order (string->number (option-ref options 'order "1")))
+
+(let ((mesh (make <Mesh> mesh-file 1 1)))
   (UniformRefinement mesh)
   (let ((fespace (make <FiniteElementSpace> mesh
                    (make <H1-FECollection> order (Dimension mesh)))))
