@@ -44,9 +44,12 @@ extension automatically.
 A hand-written `swig/guile/mfem.scm` defines `(mfem)` as a single entry point
 that re-exports all available modules with merged generics. Users write:
 
-    (use-modules (mfem))
+    (use-modules (oop goops) (mfem))
 
-instead of listing individual modules. This mirrors the C++ convention where
+instead of listing individual modules. `(oop goops)` provides `make` and the
+GOOPS class system; the umbrella does not re-export it because importing GOOPS
+generics into the umbrella's namespace interferes with `merge-generics`
+resolution of MFEM generic functions. This mirrors the C++ convention where
 `#include "mfem.hpp"` pulls in the entire library.
 
 There is a single `(mfem)` module (not `(mfem ser)` / `(mfem par)`). The build
@@ -55,12 +58,13 @@ header includes parallel headers only when MFEM is built with MPI.
 
 Individual modules can still be cherry-picked for faster load times:
 
-    (use-modules (mfem vector) (mfem mesh))
+    (use-modules (oop goops) (mfem vector) (mfem mesh))
 
 ## Consequences
 
 - Examples and tests become concise: no `load-extension` boilerplate.
-- `(use-modules (mfem))` is the recommended entry point for new users.
+- `(use-modules (oop goops) (mfem))` is the recommended entry point for new
+  users.
 - Adding a new module requires adding it to the umbrella `mfem.scm`.
 - The `load-extension` init function name must follow SWIG's convention
   (`scm_init_<name>_module`).
