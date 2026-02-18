@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+# SPDX-License-Identifier: BSD-3-Clause
 set -euo pipefail
 
 SRCDIR="$(cd "$(dirname "$0")" && pwd)"
