@@ -6,7 +6,7 @@
 ;;   guile -L build ex0.scm
 ;;   guile -L build ex0.scm -- -m ../data/fichera.mesh
 
-(use-modules (mfem) (ice-9 getopt-long))
+(use-modules (oop goops) (mfem) (ice-9 getopt-long))
 
 ;; 1. Parse command line options
 (define option-spec

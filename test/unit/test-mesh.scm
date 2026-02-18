@@ -1,5 +1,7 @@
 (use-modules (srfi srfi-64)
              (mfem mesh) (mfem fe_coll))
+;; Primitive API names (new-Mesh etc.) not exported by the GOOPS proxy
+(use-modules (mesh-primitive) (fe_coll-primitive))
 
 ;; MFEM data directory (set by CTest via MFEM_DATA_DIR environment variable)
 (define mfem-data-dir (getenv "MFEM_DATA_DIR"))

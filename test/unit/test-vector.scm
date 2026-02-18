@@ -1,6 +1,8 @@
 (use-modules (srfi srfi-4)
              (srfi srfi-64)
              (mfem vector))
+;; Primitive API names (new-Vector etc.) not exported by the GOOPS proxy
+(use-modules (vector-primitive))
 
 (test-begin "mfem-vector")
 

@@ -1,10 +1,10 @@
 ;;; (mfem) — umbrella module re-exporting all MFEM bindings.
 ;;;
 ;;; Usage:
-;;;   (use-modules (mfem))
+;;;   (use-modules (oop goops) (mfem))
 ;;;
 ;;; Individual modules can be cherry-picked for faster load times:
-;;;   (use-modules (mfem vector) (mfem mesh))
+;;;   (use-modules (oop goops) (mfem vector) (mfem mesh))
 
 (define-module (mfem)
   #:duplicates (merge-generics replace warn-override-core warn last))
@@ -38,12 +38,18 @@
              (mfem device))
 
 ;; Re-export all public bindings from the imported modules.
-(let ((public-i (module-public-interface (current-module))))
+;; Look up each name in the current module (where merge-generics has
+;; combined generic functions from all imports) rather than copying
+;; variables directly from individual module interfaces.
+(let ((public-i (module-public-interface (current-module)))
+      (this-mod (current-module)))
   (for-each
     (lambda (mod)
       (module-for-each
-        (lambda (name var)
-          (module-add! public-i name var))
+        (lambda (name _var)
+          (let ((merged-var (module-variable this-mod name)))
+            (when merged-var
+              (module-add! public-i name merged-var))))
         (resolve-interface mod)))
     '((mfem mem_manager)
       (mfem globals)
