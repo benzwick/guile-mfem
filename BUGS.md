@@ -97,3 +97,157 @@ module 1's type is already in the shared table when module 2 initializes.
 
 **Fix applied in:** `_reference/swig` submodule, branch `bz/fix-cross-module-type-cast`
 **Upstream PR:** https://github.com/swig/swig/pull/3337
+
+## Null C++ pointers are truthy in Scheme
+
+**Affects:** ex1, ex2 (and any code that branches on a potentially-null pointer)
+
+SWIG Guile wraps null C++ pointers as GOOPS objects that are truthy in
+Scheme. Any code that branches on a potentially-null C++ pointer will
+take the wrong branch.
+
+**ex1.scm (step 5):** The isoparametric FE branch tests `(GetNodes mesh)`
+which returns null for meshes without nodes. In C++ `if (mesh.GetNodes())`
+is false for null. In Guile the wrapped null pointer is truthy, so the
+`cond` `=>` clause always fires and the fallback `else` branch (which
+creates `H1_FECollection` with order=1) is never reached. This only
+matters when `order <= 0`.
+
+**ex2.scm (steps 3, 5, 13):** The NURBS branches test `mesh->NURBSext`
+which is null for non-NURBS meshes. Since the wrapped null is truthy,
+`(slot-ref mesh 'NURBSext)` always evaluates to true. Calling
+`DegreeElevate` on a non-NURBS mesh crashes with "Mesh::DegreeElevate :
+Not a NURBS mesh!". The workaround is to skip the NURBS branches entirely.
+
+**How to fix:** Add a helper to the SWIG interface that performs the null
+check in C++ and returns a Scheme boolean:
+```c
+// In mesh.i %extend Mesh:
+bool HasNURBSExt() const { return self->NURBSext != nullptr; }
+```
+Or fix SWIG Guile's pointer wrapping to return `#f` for null pointers
+(this would be an upstream SWIG change).
+
+## Cross-module GOOPS method dispatch failure
+
+**Affects:** ex2
+
+Methods specialized on types from modules that aren't imported by the
+defining module fail to dispatch at runtime. The method exists but its
+type specializer is a different class object than the one used to create
+the actual argument.
+
+**ex2.scm (step 13):** `SetNodalFESpace` is defined in `mesh.scm` with
+a `<FiniteElementSpace>` parameter, but `mesh.scm` does not import
+`(mfem fespace)`. The `<FiniteElementSpace>` class in the method
+specializer is a locally-created placeholder that doesn't match the
+real class. The call `(SetNodalFESpace mesh fespace)` fails with "No
+applicable method".
+
+**Workaround in ex2.scm:** Call the C primitive directly:
+```scheme
+((@@ (mfem mesh) primitive:Mesh-SetNodalFESpace) mesh fespace)
+```
+
+**How to fix:** The SWIG code generator (or `PostProcessProxy.cmake`)
+needs to add missing `use-modules` imports to generated `.scm` files.
+Specifically, `mesh.scm` should import `(mfem fespace)`. This requires
+analyzing which types each module's methods reference and ensuring those
+modules are imported. Circular dependencies may need care.
+
+## `Vector::Elem` returns a SWIG pointer, not a Scheme number
+
+**Affects:** ex2 (and any code using `Elem` for numeric access)
+
+`(Elem v i)` wraps `Vector::operator()(int i)` which returns `double&`
+in C++. SWIG wraps the reference as `#<swig-pointer double *>` which
+cannot be used in arithmetic.
+
+**Workaround:** Use `(get v i)` instead, which is defined via `%extend`
+in `vector.i` and returns a Scheme number. Similarly use `(set v i val)`
+to write.
+
+**How to fix:** This is expected SWIG behavior for reference returns.
+The `get`/`set` helpers in `vector.i` are the proper API. Consider
+deprecating or hiding `Elem` to avoid confusion.
+
+# Missing Functionality
+
+## GLVis visualization (socketstream)
+
+**Affects:** ex0, ex1, ex2 (all skip GLVis visualization)
+
+The `socketstream.i` SWIG interface file exists in `mfem/_ser/` but is
+not compiled into the Guile bindings (no `add_guile_mfem_module` call
+in `CMakeLists.txt`).
+
+**How to fix:** Add the socketstream module to `CMakeLists.txt`:
+```cmake
+add_guile_mfem_module(socketstream
+  SWIG_FILE mfem/_ser/socketstream.i
+  DEPENDS mfem)
+```
+Then add `(mfem socketstream)` to the `(mfem)` meta-module and implement
+the visualization step in each example.
+
+## `UsesTensorBasis` not wrapped
+
+**Affects:** ex1 (partial assembly path)
+
+The standalone function `UsesTensorBasis(fespace)` is not exposed in the
+SWIG interface. This is used in the partial assembly path to decide
+between `OperatorJacobiSmoother` + `PCG` and plain `CG`.
+
+**How to fix:** Add to `mfem/_ser/fespace.i` or a suitable `.i` file:
+```swig
+bool UsesTensorBasis(const FiniteElementSpace &fes);
+```
+
+# Features Already Wrapped But Not Used in Examples
+
+These C++ features are already available in the Guile bindings and could
+be enabled in the examples with code changes only (no binding work
+needed).
+
+## Partial assembly and full assembly (ex1)
+
+The NOTE comments in ex1.scm say partial/full assembly is "not yet
+supported", but the required bindings exist:
+
+- `SetAssemblyLevel` on `BilinearForm` is wrapped
+- Assembly level constants are exported: `AssemblyLevel-PARTIAL`,
+  `AssemblyLevel-FULL`, etc.
+- `OperatorJacobiSmoother` is wrapped (for the PA preconditioner)
+- `CG` standalone function is wrapped (for the non-preconditioned path)
+
+The only missing piece is `UsesTensorBasis` (see above). Without it, the
+PA path could still be implemented by always using
+`OperatorJacobiSmoother` (or always using unpreconditioned `CG`), just
+without the runtime tensor-basis check.
+
+**To enable:** Add `-p`/`--partial-assembly` and `-f`/`--full-assembly`
+command-line options, call `(SetAssemblyLevel a AssemblyLevel-PARTIAL)`,
+and use `OperatorJacobiSmoother` + `PCG` or plain `CG` in the solver
+step.
+
+## SuiteSparse direct solver (ex1, ex2)
+
+The SuiteSparse path (`UMFPackSolver`) is conditionally compiled in the
+SWIG interface (`#ifdef MFEM_USE_SUITESPARSE` in `solvers.i`). If MFEM
+is built with SuiteSparse support, the solver is available in the Guile
+bindings automatically.
+
+## NURBS degree elevation (ex2)
+
+`DegreeElevate` is wrapped and works correctly. The only reason it is
+skipped is the null-pointer check on `NURBSext` (see above). Once that
+bug is fixed, the NURBS branches in ex2 can be re-enabled and NURBS
+sample runs (`beam-quad-nurbs.mesh`, `beam-hex-nurbs.mesh`) will work.
+
+## Isoparametric FE space (ex1)
+
+`OwnFEC` on `GridFunction` and `GetNodes` on `Mesh` are both wrapped.
+The isoparametric path (`order <= 0`) is implemented in ex1.scm but may
+not work correctly due to the null-pointer bug (see above). Once null
+detection is fixed, this path should work for NURBS meshes like
+`square-disc-nurbs.mesh` with `-o -1`.
