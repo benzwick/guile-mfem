@@ -6,22 +6,38 @@ Accepted
 
 ## Context
 
-Each SWIG-generated proxy `.scm` file defines a Guile module (e.g., `(vector)`)
-with GOOPS class definitions and generic function methods, but it does not load
-the corresponding C extension (`.so`). Users and examples must manually call
+Each SWIG-generated proxy `.scm` file defines a Guile module with GOOPS class
+definitions and generic function methods, but it does not load the corresponding
+C extension (`.so`). Users and examples must manually call
 `(load-extension "vector" "scm_init_vector_module")` for every module before
 `(use-modules ...)` works. This creates fragile, order-dependent boilerplate
 that grows with every module added.
 
+Additionally, SWIG generates flat module names like `(vector)` and `(mesh)`,
+which will collide with other Guile libraries.
+
 ## Decision
+
+### Module namespace
+
+All proxy modules live under the `(mfem ...)` namespace: `(mfem vector)`,
+`(mfem mesh)`, etc. `PostProcessProxy.cmake` rewrites the SWIG-generated
+`(define-module (vector))` to `(define-module (mfem vector))`, and the `.scm`
+files are placed in a `mfem/` subdirectory of the build directory. The
+`%insert("goops")` directives in `.i` files use `(mfem ...)` names for
+cross-module GOOPS class imports.
+
+The C extensions (`.so` files) and their primitive modules
+(e.g., `(vector-primitive)`) remain flat — they are internal implementation
+details never referenced by user code.
 
 ### Self-loading proxy modules
 
 `PostProcessProxy.cmake` inserts a `(load-extension ...)` call into each
 generated proxy `.scm` file, immediately after the `(define-module ...)` form.
 The module name is extracted from the existing regex match. This makes each
-proxy module self-contained: `(use-modules (vector))` loads the C extension
-automatically.
+proxy module self-contained: `(use-modules (mfem vector))` loads the C
+extension automatically.
 
 ### `(mfem)` umbrella module
 
@@ -39,7 +55,7 @@ header includes parallel headers only when MFEM is built with MPI.
 
 Individual modules can still be cherry-picked for faster load times:
 
-    (use-modules (vector) (mesh))
+    (use-modules (mfem vector) (mfem mesh))
 
 ## Consequences
 
