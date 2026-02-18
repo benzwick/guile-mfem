@@ -16,8 +16,11 @@ cmake --build "${MFEM_BUILD}" -j"$(nproc)"
 # Build guile-mfem (clean to avoid stale cache)
 echo "=== Building guile-mfem ==="
 rm -rf "${BUILD}"
+SWIG_DIR="${SRCDIR}/_reference/swig/Lib"
 cmake -B "${BUILD}" -S "${SRCDIR}" \
-  -DMFEM_DIR="${MFEM_BUILD}"
+  -DMFEM_DIR="${MFEM_BUILD}" \
+  -DSWIG_EXECUTABLE="${SWIG_DIR}/../swig" \
+  -DSWIG_DIR="${SWIG_DIR}"
 cmake --build "${BUILD}" -j"$(nproc)"
 
 # Run tests
