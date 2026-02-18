@@ -1,17 +1,19 @@
 # PostProcessProxy.cmake
 #
-# Post-processes a SWIG-generated Guile proxy .scm file to fix
-# cross-module GOOPS generic function dispatch.  Two changes:
+# Post-processes a SWIG-generated Guile proxy .scm file to make each
+# module self-loading and fix cross-module GOOPS generic function dispatch.
 #
-# 1. Add #:duplicates (merge-generics replace warn-override-core warn last)
-#    to the (define-module ...) form, following the G-Golf convention.
-#    This merges generic functions imported from multiple modules.
+# 1. Namespace the module under (mfem ...), add #:duplicates, and insert
+#    (load-extension ...) so the proxy is self-loading.
 #
 # 2. Replace the (export ...) macro with a call to swig-export!
 #    (defined in swig/guile/common.scm).  Unlike Guile's export,
 #    swig-export! uses module-variable (which searches imports) +
 #    module-add! to the public interface, avoiding the creation of
 #    #<undefined> locals that shadow imported generics.
+#
+# 3. Replace (define-method ...) with (define-method/safe ...) for
+#    graceful degradation when optional modules aren't built.
 #
 # Usage: cmake -DSCM_FILE=path/to/module.scm -P PostProcessProxy.cmake
 
@@ -25,15 +27,17 @@ endif()
 
 file(READ "${SCM_FILE}" _content)
 
-# 1. Add #:duplicates to (define-module ...)
+# 1. Namespace under (mfem ...), add #:duplicates, insert load-extension
 #    SWIG generates:  (define-module (name))
-#    We change it to: (define-module (name)
+#    We change it to: (define-module (mfem name)
 #                       #:duplicates (merge-generics replace warn-override-core warn last))
-string(REGEX MATCH "\\(define-module \\([^)]+\\)\\)" _dm_form "${_content}")
+#                     (load-extension "name" "scm_init_name_module")
+string(REGEX MATCH "\\(define-module \\(([^)]+)\\)\\)" _dm_form "${_content}")
 if(_dm_form)
-  string(REGEX REPLACE "\\)\\)$"
-    ")\n  #:duplicates (merge-generics replace warn-override-core warn last))"
-    _dm_fixed "${_dm_form}")
+  # Extract module name from the match
+  string(REGEX REPLACE "\\(define-module \\(([^)]+)\\)\\)" "\\1" _mod_name "${_dm_form}")
+
+  set(_dm_fixed "(define-module (mfem ${_mod_name})\n  #:duplicates (merge-generics replace warn-override-core warn last))\n\n(load-extension \"${_mod_name}\" \"scm_init_${_mod_name}_module\")")
   string(REPLACE "${_dm_form}" "${_dm_fixed}" _content "${_content}")
 endif()
 

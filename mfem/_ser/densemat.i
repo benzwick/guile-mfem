@@ -7,7 +7,7 @@
 
 */
 %module densemat
-%insert("goops") %{(use-modules (array) (vector) (operators) (matrix))%}
+%insert("goops") %{(use-modules (mfem array) (mfem vector) (mfem operators) (mfem matrix))%}
 
 %feature("autodoc", "1");
 %{

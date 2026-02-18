@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module matrix
-%insert("goops") %{(use-modules (array) (vector) (operators))%}
+%insert("goops") %{(use-modules (mfem array) (mfem vector) (mfem operators))%}
 
 %feature("autodoc", "1");
 

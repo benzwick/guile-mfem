@@ -42,6 +42,9 @@ message(STATUS "MFEM _config.hpp: ${_MFEM_CONFIG_HPP}")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/swig/guile/common.scm"
   DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/Swig")
 
+# Proxy .scm files live under mfem/ so modules are (mfem vector) etc.
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/mfem")
+
 function(add_guile_mfem_module name)
   cmake_parse_arguments(ARG "" "SWIG_FILE" "DEPENDS;SWIG_FLAGS" ${ARGN})
 
@@ -50,7 +53,7 @@ function(add_guile_mfem_module name)
   endif()
 
   set(_wrap_cxx "${CMAKE_CURRENT_BINARY_DIR}/${name}_wrap.cxx")
-  set(_scm_stub "${CMAKE_CURRENT_BINARY_DIR}/${name}.scm")
+  set(_scm_stub "${CMAKE_CURRENT_BINARY_DIR}/mfem/${name}.scm")
 
   # Build SWIG -I flags from include dirs
   set(_swig_inc_flags "")
@@ -77,7 +80,7 @@ function(add_guile_mfem_module name)
       ${ARG_SWIG_FLAGS}
       -module ${name}
       -o "${_wrap_cxx}"
-      -outdir "${CMAKE_CURRENT_BINARY_DIR}"
+      -outdir "${CMAKE_CURRENT_BINARY_DIR}/mfem"
       "${CMAKE_CURRENT_SOURCE_DIR}/${ARG_SWIG_FILE}"
     COMMAND ${CMAKE_COMMAND}
       "-DSCM_FILE=${_scm_stub}"

@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module nonlininteg
-%insert("goops") %{(use-modules (array) (eltrans) (fe) (fespace) (integrator) (intrules) (operators) (vector))%}
+%insert("goops") %{(use-modules (mfem array) (mfem eltrans) (mfem fe) (mfem fespace) (mfem integrator) (mfem intrules) (mfem operators) (mfem vector))%}
 %{
 #include "mfem.hpp"
 using namespace mfem;

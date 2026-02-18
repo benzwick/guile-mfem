@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module solvers
-%insert("goops") %{(use-modules (operators) (vector))%}
+%insert("goops") %{(use-modules (mfem operators) (mfem vector))%}
 
 %{
 #include "linalg/handle.hpp"

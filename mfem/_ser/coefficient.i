@@ -6,7 +6,7 @@
    SWIG interface file for coefficient.hpp
 */
 %module coefficient
-%insert("goops") %{(use-modules (array) (densemat) (eltrans) (intrules) (symmat) (vector))%}
+%insert("goops") %{(use-modules (mfem array) (mfem densemat) (mfem eltrans) (mfem intrules) (mfem symmat) (mfem vector))%}
 %feature("autodoc", "1");
 %{
 #include <iostream>

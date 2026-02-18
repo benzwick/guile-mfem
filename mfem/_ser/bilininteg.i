@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module bilininteg
-%insert("goops") %{(use-modules (array) (densemat) (eltrans) (fe) (fespace) (integrator) (intrules) (nonlininteg) (operators) (sparsemat) (vector))%}
+%insert("goops") %{(use-modules (mfem array) (mfem densemat) (mfem eltrans) (mfem fe) (mfem fespace) (mfem integrator) (mfem intrules) (mfem nonlininteg) (mfem operators) (mfem sparsemat) (mfem vector))%}
 %{
 #include "mfem.hpp"
 %}

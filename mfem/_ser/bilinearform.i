@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module bilinearform
-%insert("goops") %{(use-modules (array) (bilininteg) (densemat) (fespace) (handle) (lininteg) (matrix) (operators) (sparsemat) (vector))%}
+%insert("goops") %{(use-modules (mfem array) (mfem bilininteg) (mfem densemat) (mfem fespace) (mfem handle) (mfem lininteg) (mfem matrix) (mfem operators) (mfem sparsemat) (mfem vector))%}
 %{
 #include "fem/bilinearform.hpp"
 using namespace mfem;

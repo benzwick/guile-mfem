@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module gridfunc
-%insert("goops") %{(use-modules (array) (coefficient) (densemat) (eltrans) (fespace) (intrules) (mesh) (vector))%}
+%insert("goops") %{(use-modules (mfem array) (mfem coefficient) (mfem densemat) (mfem eltrans) (mfem fespace) (mfem intrules) (mfem mesh) (mfem vector))%}
 %feature("autodoc", "1");
 
 %{

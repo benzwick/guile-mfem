@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module sparsemat
-%insert("goops") %{(use-modules (array) (vector) (operators) (matrix) (densemat))%}
+%insert("goops") %{(use-modules (mfem array) (mfem vector) (mfem operators) (mfem matrix) (mfem densemat))%}
 %{
 #include <fstream>
 #include <sstream>

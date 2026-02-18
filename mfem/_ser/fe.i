@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module fe
-%insert("goops") %{(use-modules (array) (densemat) (intrules) (vector))%}
+%insert("goops") %{(use-modules (mfem array) (mfem densemat) (mfem intrules) (mfem vector))%}
 
 %{
 #include <iostream>

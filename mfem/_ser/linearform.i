@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module linearform
-%insert("goops") %{(use-modules (fespace) (lininteg) (vector))%}
+%insert("goops") %{(use-modules (mfem fespace) (mfem lininteg) (mfem vector))%}
 %{
 #include <iostream>
 #include <sstream>

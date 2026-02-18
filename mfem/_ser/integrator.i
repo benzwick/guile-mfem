@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module integrator
-%insert("goops") %{(use-modules (intrules))%}
+%insert("goops") %{(use-modules (mfem intrules))%}
 
 %{
 #include "mfem.hpp"

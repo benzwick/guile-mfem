@@ -7,7 +7,7 @@
 
 */
 %module vector
-%insert("goops") %{(use-modules (array))%}
+%insert("goops") %{(use-modules (mfem array))%}
 %feature("autodoc", "1");
 %{
 #include "linalg/vector.hpp"
