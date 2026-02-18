@@ -56,10 +56,11 @@ SWIG `.i` files use `%insert("goops")` to inject `(use-modules ...)` forms
 into the generated `.scm`, importing GOOPS classes from dependency modules.
 For example, `densemat.i` contains:
 
-    %insert("goops") %{(use-modules (array) (vector) (operators) (matrix))%}
+    %insert("goops") %{(use-modules (mfem array) (mfem vector) (mfem operators) (mfem matrix))%}
 
-This ensures that when the `densemat` proxy module loads, the GOOPS classes it
-inherits from (e.g., `<Operator>` from `(operators)`) are already defined.
+This ensures that when the `(mfem densemat)` proxy module loads, the GOOPS
+classes it inherits from (e.g., `<Operator>` from `(mfem operators)`) are
+already defined.
 
 ### Auto-compilation disabled
 
