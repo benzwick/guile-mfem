@@ -96,6 +96,13 @@ time), module-ensure-local-variable! is used as a fallback."
             (or var (module-ensure-local-variable! mod name)))))
       names)))
 
-(export <swig-metaclass> <swig> swig-export!)
+(define-syntax define-method/safe
+  (syntax-rules ()
+    "Like define-method but silently skips if a specializer class is unbound."
+    ((_ formals body ...)
+     (false-if-exception (define-method formals body ...)))))
+
+
+(export <swig-metaclass> <swig> swig-export! define-method/safe)
 
 ;;; common.scm ends here

@@ -48,4 +48,9 @@ if(_export_form)
   string(REPLACE "${_export_form}" "${_fix}" _content "${_content}")
 endif()
 
+# 3. Replace (define-method ...) with (define-method/safe ...)
+#    so methods referencing GOOPS classes from unbuilt modules are
+#    silently skipped instead of causing an unbound-variable error.
+string(REPLACE "(define-method " "(define-method/safe " _content "${_content}")
+
 file(WRITE "${SCM_FILE}" "${_content}")
