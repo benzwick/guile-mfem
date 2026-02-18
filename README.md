@@ -4,6 +4,40 @@ This repository provides GNU Guile binding for MFEM. MFEM is a high performance 
 
 Forked from [PyMFEM](https://github.com/mfem/PyMFEM) and adapted to target Guile 3.0 via SWIG.
 
+## Usage
+
+Solve the Poisson equation $-\Delta u = 1$ with zero Dirichlet boundary
+conditions on the star mesh (`examples/ex0-lisp.scm`):
+
+```scheme
+(use-modules (oop goops) (mfem))
+
+(let ((mesh (make <Mesh> "star.mesh" 1 1)))
+  (UniformRefinement mesh)
+  (let ((fespace (make <FiniteElementSpace> mesh
+                   (make <H1-FECollection> 1 (Dimension mesh)))))
+    (let ((x (make <GridFunction> fespace))
+          (b (make <LinearForm> fespace))
+          (a (make <BilinearForm> fespace)))
+      (Assign x 0.0)
+      (AddDomainIntegrator b
+        (make <DomainLFIntegrator> (make <ConstantCoefficient> 1.0)))
+      (Assemble b)
+      (AddDomainIntegrator a (make <DiffusionIntegrator>))
+      (Assemble a)
+      (let ((bdr (make <intArray>))
+            (A (make <OperatorHandle>))
+            (B (make <Vector>))
+            (X (make <Vector>)))
+        (GetBoundaryTrueDofs fespace bdr)
+        (FormLinearSystem a bdr x b A X B)
+        (PCG (Ptr A) (make <GSSmoother> (OperatorHandle2SparseMatrix A))
+          B X 1 200 1e-12 0.0)
+        (RecoverFEMSolution a X b x))
+      (Save x "sol.gf")
+      (Save mesh "mesh.mesh"))))
+```
+
 ## Install
 ### Build from source (Serial MFEM)
 ```shell
@@ -28,88 +62,6 @@ $ rm -rf build
 ```shell
 cd build && ctest --output-on-failure
 ```
-
-## Usage
-TODO: Guile usage example. Below is the PyMFEM (Python) version for reference.
-
-This example (modified from `ex1.cpp`) solves the Poisson equation,
-$$\nabla \cdot (\alpha \nabla u) = f$$
-in a square and plots the result using matplotlib.
-Use the badge above to open this in Colab.
-
-```python
-import mfem.ser as mfem
-
-# Create a square mesh
-mesh = mfem.Mesh(10, 10, "TRIANGLE")
-
-# Define the finite element function space
-fec = mfem.H1_FECollection(1, mesh.Dimension())   # H1 order=1
-fespace = mfem.FiniteElementSpace(mesh, fec)
-
-# Define the essential dofs
-ess_tdof_list = mfem.intArray()
-ess_bdr = mfem.intArray([1]*mesh.bdr_attributes.Size())
-fespace.GetEssentialTrueDofs(ess_bdr, ess_tdof_list)
-
-# Define constants for alpha (diffusion coefficient) and f (RHS)
-alpha = mfem.ConstantCoefficient(1.0)
-rhs = mfem.ConstantCoefficient(1.0)
-
-"""
-Note
------
-In order to represent a variable diffusion coefficient, you
-must use a numba-JIT compiled function. For example:
-
->>> @mfem.jit.scalar
->>> def alpha(x):
->>>     return x+1.0
-"""
-
-# Define the bilinear and linear operators
-a = mfem.BilinearForm(fespace)
-a.AddDomainIntegrator(mfem.DiffusionIntegrator(alpha))
-a.Assemble()
-b = mfem.LinearForm(fespace)
-b.AddDomainIntegrator(mfem.DomainLFIntegrator(rhs))
-b.Assemble()
-
-# Initialize a gridfunction to store the solution vector
-x = mfem.GridFunction(fespace)
-x.Assign(0.0)
-
-# Form the linear system of equations (AX=B)
-A = mfem.OperatorPtr()
-B = mfem.Vector()
-X = mfem.Vector()
-a.FormLinearSystem(ess_tdof_list, x, b, A, X, B)
-print("Size of linear system: " + str(A.Height()))
-
-# Solve the linear system using PCG and store the solution in x
-AA = mfem.OperatorHandle2SparseMatrix(A)
-M = mfem.GSSmoother(AA)
-mfem.PCG(AA, M, B, X, 1, 200, 1e-12, 0.0)
-a.RecoverFEMSolution(X, b, x)
-
-# Extract vertices and solution as numpy arrays
-verts = mesh.GetVertexArray()
-sol = x.GetDataArray()
-
-# Plot the solution using matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.tri as tri
-
-triang = tri.Triangulation(verts[:,0], verts[:,1])
-
-fig, ax = plt.subplots()
-ax.set_aspect('equal')
-tpc = ax.tripcolor(triang, sol, shading='gouraud')
-fig.colorbar(tpc)
-plt.show()
-```
-![](https://raw.githubusercontent.com/mfem/PyMFEM/master/docs/example_image.png)
-
 
 ## License
 guile-mfem is licensed under BSD-3 license. All new contributions
