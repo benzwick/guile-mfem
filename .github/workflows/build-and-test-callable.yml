@@ -76,13 +76,16 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
+    - name: Checkout SWIG submodule
+      run: git submodule update --init _reference/swig
+
     # -------------------------------------------------------------------------------------------------
     # Download/install dependencies
     # -------------------------------------------------------------------------------------------------
     - name: Install core dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y guile-${{ inputs.guile-version }}-dev cmake swig
+        sudo apt-get install -y guile-${{ inputs.guile-version }}-dev cmake bison libpcre2-dev
 
     #- name: Install chrpath on ubuntu
     #  if: inputs.os == 'ubuntu-latest'
@@ -116,11 +119,17 @@ jobs:
         sudo sh ~/cache/cuda.run --silent --toolkit
         echo "/usr/local/cuda/bin" >> $GITHUB_PATH
 
+    - name: Build SWIG
+      run: |
+        cmake -S _reference/swig -B swig-build -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/swig-install
+        cmake --build swig-build -j$(nproc)
+        cmake --install swig-build
+
     - name: Print dependency information
       run: |
         guile --version
         cmake --version
-        swig -version
+        ${{ github.workspace }}/swig-install/bin/swig -version
         printf "\n\n---------- MPI ----------\n"
         mpiexec --version || printf "MPI not installed"
         printf "\n\n---------- CUDA ----------\n"
@@ -168,7 +177,12 @@ jobs:
         cp -r mfem-src/data ${{ github.workspace }}/mfem-install/data
 
     - name: Build SWIG bindings + guile-mfem (steps 2-3)
-      run: cmake -B build ${{ env.cmake-flags }} && cmake --build build -j$(nproc)
+      run: |
+        SWIG_VERSION=$(sed -n 's/.*AC_INIT(\[swig\],\[\(.*\)\],.*/\1/p' _reference/swig/configure.ac)
+        cmake -B build ${{ env.cmake-flags }} \
+          -DSWIG_EXECUTABLE=${{ github.workspace }}/swig-install/bin/swig \
+          -DSWIG_DIR=${{ github.workspace }}/swig-install/share/swig/${SWIG_VERSION}
+        cmake --build build -j$(nproc)
 
     # -------------------------------------------------------------------------------------------------
     # Run tests
