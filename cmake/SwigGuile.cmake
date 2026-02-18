@@ -36,6 +36,12 @@ find_file(_MFEM_CONFIG_HPP _config.hpp
   NO_DEFAULT_PATH)
 message(STATUS "MFEM _config.hpp: ${_MFEM_CONFIG_HPP}")
 
+# SWIG GOOPS proxy modules require (Swig common).  Copy our custom version
+# (with swig-export! and positional constructors) into the build directory
+# so Guile can find it via -L ${CMAKE_CURRENT_BINARY_DIR}.
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/swig/guile/common.scm"
+  DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/Swig")
+
 function(add_guile_mfem_module name)
   cmake_parse_arguments(ARG "" "SWIG_FILE" "DEPENDS;SWIG_FLAGS" ${ARGN})
 
@@ -56,12 +62,6 @@ function(add_guile_mfem_module name)
   # Scheme proxy module with GOOPS class hierarchy.
   set(_proxy_flags -scmstub -proxy -emit-setters)
   set(_outputs "${_wrap_cxx}" "${_scm_stub}")
-
-  # The proxy stubs %load-extension from a Swig/ subdirectory and
-  # (use-modules (Swig common)).  Copy common.scm into place so Guile
-  # can find it next to the generated .scm files.
-  file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/swig/guile/common.scm"
-    DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/Swig")
 
   # Run SWIG to generate wrapper
   add_custom_command(
