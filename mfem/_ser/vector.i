@@ -7,6 +7,7 @@
 
 */
 %module vector
+%insert("goops") %{(use-modules (array))%}
 %feature("autodoc", "1");
 %{
 #include "linalg/vector.hpp"
@@ -39,9 +40,13 @@ ARRAY_TO_DOUBLEARRAY_IN(double *data_)
 
 %ignore mfem::add;
 %ignore mfem::subtract;
+%ignore mfem::CheckFinite;    // conflicts with Vector::CheckFinite in GOOPS proxy
+%ignore mfem::Distance;       // raw-pointer overload conflicts; use Vector::DistanceTo
+%ignore mfem::DistanceSquared; // raw-pointer only; use Vector::DistanceSquaredTo
 %ignore mfem::Vector::operator =;
 %ignore mfem::Vector::operator double *;
 %ignore mfem::Vector::operator const double *;
+%ignore mfem::Vector::begin;  // 'begin' is a Scheme special form
 
 // these inlines are to rename add/subtract...
 %inline %{

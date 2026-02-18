@@ -41,6 +41,7 @@ XXXPTR_SIZE_IN(bool *data_, int asize, bool)
 %ignore mfem::Array2D::operator=;
 %ignore mfem::Array::operator T *;
 %ignore mfem::Array::operator const T *;
+%ignore mfem::Array::begin;  // 'begin' is a Scheme special form
 
 %include "general/array.hpp"
 

@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module sparsemat
+%insert("goops") %{(use-modules (array) (vector) (operators) (matrix) (densemat))%}
 %{
 #include <fstream>
 #include <sstream>
@@ -57,11 +58,6 @@ OSTREAM_TYPEMAP(std::ostream&)
 %include "linalg/sparsemat.hpp"
 
 %extend mfem::SparseMatrix {
-  // Without SWIG Guile -proxy, inherited Operator methods are not
-  // available on derived types.  Provide explicit wrappers.
-  int Height() const { return self->Height(); }
-  int Width() const { return self->Width(); }
-
   SCM GetIArray(void) const{
     const int * I = self->GetI();
     int L = self->Size();

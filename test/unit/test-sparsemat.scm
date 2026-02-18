@@ -1,63 +1,59 @@
 (use-modules (srfi srfi-4)
-             (srfi srfi-64))
+             (srfi srfi-64)
+             (oop goops))
 
 ;; Load C extensions (dependencies must be loaded first for SWIG type table)
 (load-extension "mem_manager" "scm_init_mem_manager_module")
 (load-extension "globals" "scm_init_globals_module")
 (load-extension "array" "scm_init_array_module")
 (load-extension "vector" "scm_init_vector_module")
-(use-modules (vector-primitive))
 (load-extension "operators" "scm_init_operators_module")
 (load-extension "matrix" "scm_init_matrix_module")
 (load-extension "densemat" "scm_init_densemat_module")
 (load-extension "sparsemat" "scm_init_sparsemat_module")
-(use-modules (sparsemat))
+(use-modules (vector) (operators) (sparsemat))
 
 (test-begin "mfem-sparsemat")
 
 ;; Construction and Size
 (test-group "construction"
-  (let ((s (new-SparseMatrix 3 3)))
-    (test-equal "SparseMatrix(3,3) height" 3 (SparseMatrix-Height s))
-    (test-equal "SparseMatrix(3,3) width" 3 (SparseMatrix-Width s))
-    (delete-SparseMatrix s)))
+  (let ((s (make <SparseMatrix> 3 3)))
+    (test-equal "SparseMatrix(3,3) height" 3 (Height s))
+    (test-equal "SparseMatrix(3,3) width" 3 (Width s))))
 
 ;; Add elements and Finalize
 (test-group "add-finalize"
-  (let ((s (new-SparseMatrix 3 3)))
+  (let ((s (make <SparseMatrix> 3 3)))
     ;; Build a simple 3x3 diagonal matrix: diag(1, 2, 3)
-    (SparseMatrix-Add s 0 0 1.0)
-    (SparseMatrix-Add s 1 1 2.0)
-    (SparseMatrix-Add s 2 2 3.0)
-    (SparseMatrix-Finalize s)
+    (Add s 0 0 1.0)
+    (Add s 1 1 2.0)
+    (Add s 2 2 3.0)
+    (Finalize s)
     ;; Mult: y = S*x where x = [1,1,1]
-    (let ((x (new-Vector 3))
-          (y (new-Vector 3)))
-      (Vector-Assign x 1.0)
-      (SparseMatrix-Mult s x y)
-      (test-approximate "diag mult y[0]" 1.0 (Vector-get y 0) 1e-15)
-      (test-approximate "diag mult y[1]" 2.0 (Vector-get y 1) 1e-15)
-      (test-approximate "diag mult y[2]" 3.0 (Vector-get y 2) 1e-15)
-      (delete-Vector x)
-      (delete-Vector y))
-    (delete-SparseMatrix s)))
+    (let ((x (make <Vector> 3))
+          (y (make <Vector> 3)))
+      (Assign x 1.0)
+      (Mult s x y)
+      (test-approximate "diag mult y[0]" 1.0 (get y 0) 1e-15)
+      (test-approximate "diag mult y[1]" 2.0 (get y 1) 1e-15)
+      (test-approximate "diag mult y[2]" 3.0 (get y 2) 1e-15))))
 
 ;; CSR access: GetIArray, GetJArray, GetDataArray
 (test-group "csr-access"
-  (let ((s (new-SparseMatrix 3 3)))
+  (let ((s (make <SparseMatrix> 3 3)))
     ;; Build: row 0 -> (0,0)=1.0, (0,2)=2.0
     ;;        row 1 -> (1,1)=3.0
     ;;        row 2 -> (2,0)=4.0, (2,2)=5.0
-    (SparseMatrix-Add s 0 0 1.0)
-    (SparseMatrix-Add s 0 2 2.0)
-    (SparseMatrix-Add s 1 1 3.0)
-    (SparseMatrix-Add s 2 0 4.0)
-    (SparseMatrix-Add s 2 2 5.0)
-    (SparseMatrix-Finalize s)
+    (Add s 0 0 1.0)
+    (Add s 0 2 2.0)
+    (Add s 1 1 3.0)
+    (Add s 2 0 4.0)
+    (Add s 2 2 5.0)
+    (Finalize s)
 
-    (let ((iv (SparseMatrix-GetIArray s))
-          (jv (SparseMatrix-GetJArray s))
-          (dv (SparseMatrix-GetDataArray s)))
+    (let ((iv (GetIArray s))
+          (jv (GetJArray s))
+          (dv (GetDataArray s)))
       ;; I array: [0, 2, 3, 5]
       (test-assert "GetIArray returns s32vector" (s32vector? iv))
       (test-equal "I length" 4 (s32vector-length iv))
@@ -82,8 +78,7 @@
       (test-approximate "data[1]" 1.0 (f64vector-ref dv 1) 1e-15)
       (test-approximate "data[2]" 3.0 (f64vector-ref dv 2) 1e-15)
       (test-approximate "data[3]" 5.0 (f64vector-ref dv 3) 1e-15)
-      (test-approximate "data[4]" 4.0 (f64vector-ref dv 4) 1e-15))
-    (delete-SparseMatrix s)))
+      (test-approximate "data[4]" 4.0 (f64vector-ref dv 4) 1e-15))))
 
 (define runner (test-runner-current))
 (test-end "mfem-sparsemat")

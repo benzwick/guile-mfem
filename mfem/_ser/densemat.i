@@ -7,6 +7,7 @@
 
 */
 %module densemat
+%insert("goops") %{(use-modules (array) (vector) (operators) (matrix))%}
 
 %feature("autodoc", "1");
 %{
@@ -41,11 +42,6 @@ OSTREAM_TYPEMAP(std::ostream&)
   void Assign(const mfem::DenseMatrix &m) {
     (* self) = m;
   }
-
-  // Without SWIG Guile -proxy, inherited Operator methods are not
-  // available on derived types.  Provide explicit wrappers.
-  int Height() const { return self->Height(); }
-  int Width() const { return self->Width(); }
 
   double get(int i, int j) {
     return (* self)(i, j);

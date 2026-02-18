@@ -37,7 +37,7 @@ find_file(_MFEM_CONFIG_HPP _config.hpp
 message(STATUS "MFEM _config.hpp: ${_MFEM_CONFIG_HPP}")
 
 function(add_guile_mfem_module name)
-  cmake_parse_arguments(ARG "NO_PROXY" "SWIG_FILE" "DEPENDS;SWIG_FLAGS" ${ARGN})
+  cmake_parse_arguments(ARG "" "SWIG_FILE" "DEPENDS;SWIG_FLAGS" ${ARGN})
 
   if(NOT ARG_SWIG_FILE)
     message(FATAL_ERROR "add_guile_mfem_module: SWIG_FILE is required")
@@ -53,21 +53,21 @@ function(add_guile_mfem_module name)
   endforeach()
 
   # SWIG Guile proxy flags: -scmstub -proxy -emit-setters generate a
-  # Scheme proxy module with GOOPS class hierarchy.  SWIG <= 4.5.0
-  # segfaults when these flags are used with linalg/operator.hpp.
-  # Use NO_PROXY to disable them for affected modules.
-  if(ARG_NO_PROXY)
-    set(_proxy_flags "")
-    set(_outputs "${_wrap_cxx}")
-  else()
-    set(_proxy_flags -scmstub -proxy -emit-setters)
-    set(_outputs "${_wrap_cxx}" "${_scm_stub}")
-  endif()
+  # Scheme proxy module with GOOPS class hierarchy.
+  set(_proxy_flags -scmstub -proxy -emit-setters)
+  set(_outputs "${_wrap_cxx}" "${_scm_stub}")
+
+  # The proxy stubs %load-extension from a Swig/ subdirectory and
+  # (use-modules (Swig common)).  Copy common.scm into place so Guile
+  # can find it next to the generated .scm files.
+  file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/swig/guile/common.scm"
+    DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/Swig")
 
   # Run SWIG to generate wrapper
   add_custom_command(
     OUTPUT ${_outputs}
-    COMMAND ${SWIG_EXECUTABLE}
+    COMMAND ${CMAKE_COMMAND} -E env "SWIG_LIB=${SWIG_DIR}"
+      ${SWIG_EXECUTABLE}
       -c++ -guile
       -Linkage module
       ${_proxy_flags}
@@ -79,6 +79,9 @@ function(add_guile_mfem_module name)
       -o "${_wrap_cxx}"
       -outdir "${CMAKE_CURRENT_BINARY_DIR}"
       "${CMAKE_CURRENT_SOURCE_DIR}/${ARG_SWIG_FILE}"
+    COMMAND ${CMAKE_COMMAND}
+      "-DSCM_FILE=${_scm_stub}"
+      -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PostProcessProxy.cmake"
     DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${ARG_SWIG_FILE}"
     COMMENT "SWIG Guile: ${ARG_SWIG_FILE} -> ${name}_wrap.cxx"
     VERBATIM
@@ -91,7 +94,8 @@ function(add_guile_mfem_module name)
     ${_SWIG_MFEM_INCDIRS})
   # Point MFEM's config.hpp at the generated _config.hpp.
   target_compile_definitions(${name} PRIVATE
-    "MFEM_CONFIG_FILE=\"${_MFEM_CONFIG_HPP}\"")
+    "MFEM_CONFIG_FILE=\"${_MFEM_CONFIG_HPP}\""
+    "SWIG_TYPE_TABLE=GuileMFEM")
   target_link_libraries(${name} PRIVATE
     ${GUILE_LIBRARIES}
     ${ARG_DEPENDS})

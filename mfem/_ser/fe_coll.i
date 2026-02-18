@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
 //
 %module fe_coll
+%insert("goops") %{(use-modules (array))%}
 %{
 #include <iostream>
 #include <sstream>
