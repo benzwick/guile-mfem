@@ -73,6 +73,74 @@ add_guile_mfem_module(fe_coll
   SWIG_FILE mfem/_ser/fe_coll.i
   DEPENDS mfem)
 
+add_guile_mfem_module(intrules
+  SWIG_FILE mfem/_ser/intrules.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(eltrans
+  SWIG_FILE mfem/_ser/eltrans.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(fe
+  SWIG_FILE mfem/_ser/fe.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(symmat
+  SWIG_FILE mfem/_ser/symmat.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(integrator
+  SWIG_FILE mfem/_ser/integrator.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(nonlininteg
+  SWIG_FILE mfem/_ser/nonlininteg.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(coefficient
+  SWIG_FILE mfem/_ser/coefficient.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(fespace
+  SWIG_FILE mfem/_ser/fespace.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(gridfunc
+  SWIG_FILE mfem/_ser/gridfunc.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(lininteg
+  SWIG_FILE mfem/_ser/lininteg.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(bilininteg
+  SWIG_FILE mfem/_ser/bilininteg.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(linearform
+  SWIG_FILE mfem/_ser/linearform.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(handle
+  SWIG_FILE mfem/_ser/handle.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(bilinearform
+  SWIG_FILE mfem/_ser/bilinearform.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(solvers
+  SWIG_FILE mfem/_ser/solvers.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(sparsesmoothers
+  SWIG_FILE mfem/_ser/sparsesmoothers.i
+  DEPENDS mfem)
+
+add_guile_mfem_module(device
+  SWIG_FILE mfem/_ser/device.i
+  DEPENDS mfem)
+
 # Tests
 enable_testing()
 add_test(
