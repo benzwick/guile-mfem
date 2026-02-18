@@ -45,6 +45,10 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/swig/guile/common.scm"
 # Proxy .scm files live under mfem/ so modules are (mfem vector) etc.
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/mfem")
 
+# (mfem) umbrella module re-exports all individual modules.
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/swig/guile/mfem.scm"
+  DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
 function(add_guile_mfem_module name)
   cmake_parse_arguments(ARG "" "SWIG_FILE" "DEPENDS;SWIG_FLAGS" ${ARGN})
 
