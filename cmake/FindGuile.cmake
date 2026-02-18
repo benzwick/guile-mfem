@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+# SPDX-License-Identifier: BSD-3-Clause
+
 # FindGuile.cmake
 #
 # Find GNU Guile development files.

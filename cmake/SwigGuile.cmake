@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+# SPDX-License-Identifier: BSD-3-Clause
+
 # SwigGuile.cmake
 #
 # Provides add_guile_mfem_module() since CMake's UseSWIG does not support Guile.

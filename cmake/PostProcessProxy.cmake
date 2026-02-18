@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+# SPDX-License-Identifier: BSD-3-Clause
+
 # PostProcessProxy.cmake
 #
 # Post-processes a SWIG-generated Guile proxy .scm file to make each

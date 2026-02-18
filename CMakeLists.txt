@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+# SPDX-License-Identifier: BSD-3-Clause
+
 cmake_minimum_required(VERSION 3.18)
 project(guile-mfem LANGUAGES CXX)
 
