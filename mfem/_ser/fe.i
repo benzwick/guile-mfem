@@ -1,6 +1,7 @@
-//
-// Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
-//
+// SPDX-FileCopyrightText: 2020-2025 Princeton Plasma Physics Laboratory
+// SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+// SPDX-License-Identifier: BSD-3-Clause
+
 %module fe
 %insert("goops") %{(use-modules (mfem array) (mfem densemat) (mfem intrules) (mfem vector))%}
 
@@ -33,4 +34,3 @@
 
 %ignore mfem::DofToQuad::FE;
 %include "fem/fe.hpp"
-

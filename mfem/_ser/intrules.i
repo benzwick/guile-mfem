@@ -1,6 +1,7 @@
-//
-// Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
-//
+// SPDX-FileCopyrightText: 2020-2025 Princeton Plasma Physics Laboratory
+// SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+// SPDX-License-Identifier: BSD-3-Clause
+
 %module intrules
 %insert("goops") %{(use-modules (mfem array))%}
 
@@ -32,4 +33,3 @@ IGNORE_ARRAY_METHODS(mfem::IntegrationRule *)
 INSTANTIATE_ARRAY0(IntegrationRule *, IntegrationRule, 1)
 
 %include "fem/intrules.hpp"
-

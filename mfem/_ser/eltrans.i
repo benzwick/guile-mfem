@@ -1,6 +1,7 @@
-//
-// Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
-//
+// SPDX-FileCopyrightText: 2020-2025 Princeton Plasma Physics Laboratory
+// SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+// SPDX-License-Identifier: BSD-3-Clause
+
 %module eltrans
 %insert("goops") %{(use-modules (mfem array) (mfem densemat) (mfem fe) (mfem intrules) (mfem vector))%}
 
@@ -30,9 +31,7 @@ DEPRECATED_METHOD(mfem::IsoparametricTransformation::FinalizeTransformation())
 %include "../common/kernel_dispatch.i"
 %include "fem/eltrans.hpp"
 
-//
 //  special handling for TransformBack (this is because tol_0 is protected)
-//
 namespace mfem{
   #ifdef MFEM_USE_DOUBLE
   %extend IsoparametricTransformation{
@@ -50,4 +49,3 @@ namespace mfem{
    };  //end of extend
   #endif
  } //end of namespace
-

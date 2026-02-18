@@ -1,6 +1,7 @@
-//
-// Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
-//
+// SPDX-FileCopyrightText: 2020-2025 Princeton Plasma Physics Laboratory
+// SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+// SPDX-License-Identifier: BSD-3-Clause
+
 %module handle
 %insert("goops") %{(use-modules (mfem array) (mfem operators) (mfem vector))%}
 %feature("autodoc", "1");
@@ -47,4 +48,3 @@ IS_WRAP(SparseMatrix)
 GET_WRAP(SparseMatrix)
 RESET_WRAP(SparseMatrix)
 CONVERT_FROM_WRAP(SparseMatrix)
-

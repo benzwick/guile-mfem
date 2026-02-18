@@ -1,6 +1,7 @@
-//
-// Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
-//
+// SPDX-FileCopyrightText: 2020-2025 Princeton Plasma Physics Laboratory
+// SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+// SPDX-License-Identifier: BSD-3-Clause
+
 %module mesh
 %insert("goops") %{(use-modules (mfem array) (mfem vector) (mfem operators) (mfem matrix) (mfem densemat) (mfem sparsemat) (mfem intrules) (mfem eltrans) (mfem fe) (mfem coefficient))%}
 
@@ -176,4 +177,3 @@ OSTREAM_ADD_DEFAULT_FILE(Mesh, PrintInfo)
 OSTREAM_ADD_DEFAULT_FILE(Mesh, Print)
 OSTREAM_ADD_DEFAULT_FILE(Mesh, PrintXG)
 OSTREAM_ADD_DEFAULT_FILE(Mesh, PrintVTK)
-

@@ -1,6 +1,7 @@
-//
-// Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
-//
+// SPDX-FileCopyrightText: 2020-2025 Princeton Plasma Physics Laboratory
+// SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+// SPDX-License-Identifier: BSD-3-Clause
+
 %module vertex
 
 %{
@@ -17,4 +18,3 @@ DEPRECATED_OVERLOADED_METHOD(mfem::Vertex::SetCoords,
 			     len(args) == 2)
 
 %include "mesh/vertex.hpp"
-

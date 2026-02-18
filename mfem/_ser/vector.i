@@ -1,6 +1,7 @@
-//
-// Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
-//
+// SPDX-FileCopyrightText: 2020-2025 Princeton Plasma Physics Laboratory
+// SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+// SPDX-License-Identifier: BSD-3-Clause
+
 /*
 
    vector.i
@@ -159,5 +160,3 @@ linalg/vector.hpp:   void Print_HYPRE(std::ostream &out) const;
 OSTREAM_ADD_DEFAULT_FILE(Vector, Print)
 OSTREAM_ADD_DEFAULT_STDOUT_FILE(Vector, Print_HYPRE)
 #endif
-
-

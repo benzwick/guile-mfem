@@ -1,6 +1,7 @@
-//
-// Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
-//
+// SPDX-FileCopyrightText: 2020-2025 Princeton Plasma Physics Laboratory
+// SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+// SPDX-License-Identifier: BSD-3-Clause
+
 /*
    coefficient.i
    SWIG interface file for coefficient.hpp
@@ -65,4 +66,3 @@ IGNORE_ARRAY_METHODS(mfem::MatrixCoefficient *)
 INSTANTIATE_ARRAY0(MatrixCoefficient *, MatrixCoefficient, 1)
 
 %include "fem/coefficient.hpp"
-

@@ -1,6 +1,7 @@
-//
-// Copyright (c) 2020-2025, Princeton Plasma Physics Laboratory, All rights reserved.
-//
+// SPDX-FileCopyrightText: 2020-2025 Princeton Plasma Physics Laboratory
+// SPDX-FileCopyrightText: 2026 Benjamin F. Zwick
+// SPDX-License-Identifier: BSD-3-Clause
+
 %module fespace
 %insert("goops") %{(use-modules (mfem array) (mfem eltrans) (mfem intrules) (mfem mesh) (mfem operators) (mfem sparsemat) (mfem vector))%}
 %feature("autodoc", "1");
@@ -77,4 +78,3 @@ OSTREAM_ADD_DEFAULT_STDOUT_FILE(QuadratureSpace, Save)
     return self->GetBdrElementVDofs(bel, dofs);
   }
 };
-
