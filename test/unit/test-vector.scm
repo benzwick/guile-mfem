@@ -1,11 +1,6 @@
 (use-modules (srfi srfi-4)
-             (srfi srfi-64))
-
-;; Load C extensions (dependencies must be loaded first for SWIG type table)
-(load-extension "mem_manager" "scm_init_mem_manager_module")
-(load-extension "array" "scm_init_array_module")
-(load-extension "vector" "scm_init_vector_module")
-(use-modules (vector-primitive))
+             (srfi srfi-64)
+             (mfem vector))
 
 (test-begin "mfem-vector")
 

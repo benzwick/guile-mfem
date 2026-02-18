@@ -1,21 +1,8 @@
-(use-modules (srfi srfi-64))
+(use-modules (srfi srfi-64)
+             (mfem mesh) (mfem fe_coll))
 
 ;; MFEM data directory (set by CTest via MFEM_DATA_DIR environment variable)
 (define mfem-data-dir (getenv "MFEM_DATA_DIR"))
-
-;; Load C extensions (dependencies must be loaded first for SWIG type table)
-(load-extension "mem_manager" "scm_init_mem_manager_module")
-(load-extension "globals" "scm_init_globals_module")
-(load-extension "array" "scm_init_array_module")
-(load-extension "vector" "scm_init_vector_module")
-(load-extension "operators" "scm_init_operators_module")
-(load-extension "matrix" "scm_init_matrix_module")
-(load-extension "densemat" "scm_init_densemat_module")
-(load-extension "sparsemat" "scm_init_sparsemat_module")
-(load-extension "mesh" "scm_init_mesh_module")
-(use-modules (mesh-primitive))
-(load-extension "fe_coll" "scm_init_fe_coll_module")
-(use-modules (fe_coll-primitive))
 
 (test-begin "mfem-mesh")
 

@@ -1,15 +1,7 @@
 (use-modules (srfi srfi-4)
              (srfi srfi-64)
-             (oop goops))
-
-;; Load C extensions (dependencies must be loaded first for SWIG type table)
-(load-extension "mem_manager" "scm_init_mem_manager_module")
-(load-extension "array" "scm_init_array_module")
-(load-extension "vector" "scm_init_vector_module")
-(load-extension "operators" "scm_init_operators_module")
-(load-extension "matrix" "scm_init_matrix_module")
-(load-extension "densemat" "scm_init_densemat_module")
-(use-modules (vector) (operators) (densemat))
+             (oop goops)
+             (mfem vector) (mfem operators) (mfem densemat))
 
 (test-begin "mfem-densemat")
 

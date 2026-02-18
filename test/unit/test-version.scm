@@ -1,7 +1,5 @@
-(use-modules (srfi srfi-64))
-
-(load-extension "version" "scm_init_version_module")
-(use-modules (version-primitive))
+(use-modules (srfi srfi-64)
+             (mfem version))
 
 (test-begin "mfem-version")
 
