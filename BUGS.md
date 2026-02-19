@@ -182,6 +182,27 @@ to write.
 The `get`/`set` helpers in `vector.i` are the proper API. Consider
 deprecating or hiding `Elem` to avoid confusion.
 
+## Example tests do not verify solution correctness
+
+**Affects:** all example tests (test/examples/test-ex*.scm)
+
+The test suite only checks that each example exits successfully and
+produces non-empty output files (`sol.gf`, `mesh.mesh`, etc.). It does
+**not** verify that the solution is mathematically correct — e.g. by
+comparing against a known reference solution or checking convergence
+rates.
+
+This means bugs that produce silently wrong results would not be caught.
+To mitigate this, the examples now explicitly error out on known-broken
+code paths (NURBS meshes in ex1/ex2) so the tests actually fail (XFAIL)
+rather than silently producing wrong output (XPASS).
+
+**How to fix:** Add reference solution comparisons. MFEM's C++ test
+suite uses `sol.gf` files checked into the repository; a similar
+approach could work here. Alternatively, check L2 error norms against
+known analytic solutions (e.g. ex1's `-Delta u = 1` on the unit square
+has a known solution).
+
 # Missing Functionality
 
 ## GLVis visualization (socketstream)

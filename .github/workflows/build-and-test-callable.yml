@@ -201,15 +201,16 @@ jobs:
     # Generate an artifact (output of tests) on failure
     # -------------------------------------------------------------------------------------------------
     - name: Generate test results artifact
+      if: always()
       id: generate-artifact
       run: |
-        tar -cvzf sandbox.tar.gz build/Testing/ || true
+        tar -cvzf sandbox.tar.gz build/Testing/ build/*.gf build/*.mesh || true
         txt=$(date +%H_%M_%S_%N)
         echo name="test_results_"${txt}"_"${{ github.run_id }}".tar.gz" >> $GITHUB_OUTPUT
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
-      if: failure()
+      if: always()
       with:
           name: ${{ steps.generate-artifact.outputs.name }}
           path: sandbox.tar.gz

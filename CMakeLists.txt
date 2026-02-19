@@ -151,7 +151,7 @@ add_test(
   COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-version.scm")
 set_tests_properties(test-version PROPERTIES
-  LABELS "serial"
+  LABELS "serial;unit"
   ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0")
 
 add_test(
@@ -159,7 +159,7 @@ add_test(
   COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-vector.scm")
 set_tests_properties(test-vector PROPERTIES
-  LABELS "serial"
+  LABELS "serial;unit"
   ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0")
 
 add_test(
@@ -167,7 +167,7 @@ add_test(
   COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-densemat.scm")
 set_tests_properties(test-densemat PROPERTIES
-  LABELS "serial"
+  LABELS "serial;unit"
   ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0")
 
 add_test(
@@ -175,7 +175,7 @@ add_test(
   COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-sparsemat.scm")
 set_tests_properties(test-sparsemat PROPERTIES
-  LABELS "serial"
+  LABELS "serial;unit"
   ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0")
 
 add_test(
@@ -191,53 +191,41 @@ list(GET _SWIG_MFEM_INCDIRS 0 _incdir)
 get_filename_component(MFEM_DATA_DIR "${_incdir}/../data" ABSOLUTE)
 message(STATUS "MFEM data: ${MFEM_DATA_DIR}")
 set_tests_properties(test-mesh PROPERTIES
-  LABELS "serial"
+  LABELS "serial;unit"
   ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0;MFEM_DATA_DIR=${MFEM_DATA_DIR}")
 
-add_test(
-  NAME test-ex0
-  COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
-    "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-ex0.scm")
-set_tests_properties(test-ex0 PROPERTIES
-  LABELS "serial"
-  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0;MFEM_DATA_DIR=${MFEM_DATA_DIR}")
+# Example tests — fast suite (default mesh only)
+set(EXAMPLE_ENV "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0;MFEM_DATA_DIR=${MFEM_DATA_DIR}")
 
-add_test(
-  NAME test-ex0-lisp
-  COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
-    "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-ex0-lisp.scm")
-set_tests_properties(test-ex0-lisp PROPERTIES
-  LABELS "serial"
-  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0;MFEM_DATA_DIR=${MFEM_DATA_DIR}")
+foreach(ex ex0 ex0-lisp ex1 ex1-lisp ex2 ex2-lisp)
+  add_test(
+    NAME examples-fast-${ex}
+    COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+      "${CMAKE_CURRENT_SOURCE_DIR}/test/examples/test-${ex}.scm")
+  set_tests_properties(examples-fast-${ex} PROPERTIES
+    LABELS "serial;examples-fast"
+    ENVIRONMENT "${EXAMPLE_ENV};TEST_MODE=fast")
+endforeach()
 
-add_test(
-  NAME test-ex1
-  COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
-    "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-ex1.scm")
-set_tests_properties(test-ex1 PROPERTIES
-  LABELS "serial"
-  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0;MFEM_DATA_DIR=${MFEM_DATA_DIR}")
+# Example tests — full suite (all sample runs from example headers)
+foreach(ex ex0 ex0-lisp)
+  add_test(
+    NAME examples-full-${ex}
+    COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+      "${CMAKE_CURRENT_SOURCE_DIR}/test/examples/test-${ex}.scm")
+  set_tests_properties(examples-full-${ex} PROPERTIES
+    LABELS "serial;examples-full"
+    ENVIRONMENT "${EXAMPLE_ENV};TEST_MODE=full"
+    TIMEOUT 300)
+endforeach()
 
-add_test(
-  NAME test-ex1-lisp
-  COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
-    "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-ex1-lisp.scm")
-set_tests_properties(test-ex1-lisp PROPERTIES
-  LABELS "serial"
-  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0;MFEM_DATA_DIR=${MFEM_DATA_DIR}")
-
-add_test(
-  NAME test-ex2
-  COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
-    "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-ex2.scm")
-set_tests_properties(test-ex2 PROPERTIES
-  LABELS "serial"
-  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0;MFEM_DATA_DIR=${MFEM_DATA_DIR}")
-
-add_test(
-  NAME test-ex2-lisp
-  COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
-    "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test-ex2-lisp.scm")
-set_tests_properties(test-ex2-lisp PROPERTIES
-  LABELS "serial"
-  ENVIRONMENT "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0;MFEM_DATA_DIR=${MFEM_DATA_DIR}")
+foreach(ex ex1 ex1-lisp ex2 ex2-lisp)
+  add_test(
+    NAME examples-full-${ex}
+    COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+      "${CMAKE_CURRENT_SOURCE_DIR}/test/examples/test-${ex}.scm")
+  set_tests_properties(examples-full-${ex} PROPERTIES
+    LABELS "serial;examples-full"
+    ENVIRONMENT "${EXAMPLE_ENV};TEST_MODE=full"
+    TIMEOUT 600)
+endforeach()

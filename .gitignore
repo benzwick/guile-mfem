@@ -15,6 +15,8 @@ test/*
 !test/*.scm
 !test/unit/
 !test/unit/*.scm
+!test/examples/
+!test/examples/*.scm
 !test/integration/
 !test/integration/*.scm
 !test/cpp
