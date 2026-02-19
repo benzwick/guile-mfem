@@ -30,18 +30,33 @@ CI should exercise all sample runs from each example's header.
 
 Each test carries **two labels**, e.g. `LABELS "serial;examples-fast"`.
 
+### Shared harness
+
+`test/example-harness.scm` provides the `(test example-harness)` module used by
+all example test files. It exports:
+
+- `test-mode`, `full?` — from the `TEST_MODE` environment variable
+- `make-example-runner` — factory that returns `run` and `run/xfail` procedures
+- `test-end/exit` — prints total time, ends the SRFI-64 suite, exits
+
+`make-example-runner` takes the example script name and list of output files.
+The returned `run` procedure takes command-line args (e.g. `"-m" "star.mesh"`),
+automatically expands `-m` mesh filenames to `$MFEM_DATA_DIR/filename`,
+generates the test label, cleans up output files, times the run, and reports
+PASS/XFAIL/XPASS/FAIL.
+
 ### One file, two CTest entries
 
-Each test file in `test/examples/` checks the `TEST_MODE` environment variable
-(`fast` or `full`, default `full`). CMake creates two CTest entries from each
-file — one with `TEST_MODE=fast`, one with `TEST_MODE=full`.
+Each test file in `test/examples/` uses `full?` from the harness to gate
+long-running mesh variants. CMake creates two CTest entries from each file —
+one with `TEST_MODE=fast`, one with `TEST_MODE=full`.
 
 ### Expected failures
 
-NURBS meshes that trigger the null-pointer truthiness bug (see BUGS.md) are
-marked with SRFI-64 `test-expect-fail`. These count as `xfail` (not `fail`),
-so the test exits cleanly. If a bug is later fixed and the test passes, SRFI-64
-reports `xpass` — a signal to remove the annotation.
+NURBS meshes that trigger the null-pointer truthiness bug (see BUGS.md) use
+`run/xfail` instead of `run`. These count as `xfail` (not `fail`), so the test
+exits cleanly. If a bug is later fixed and the test passes, SRFI-64 reports
+`xpass` — a signal to remove the annotation.
 
 Output file checks use `catch` wrappers so that a crash (where files are never
 written) returns `#f` instead of throwing. Output files are deleted before each
@@ -78,6 +93,6 @@ ctest -L serial          # all 17 serial tests
 - CI exercises every sample run from each example header, catching regressions
   on specific mesh types.
 - Known NURBS failures are tracked in-tree and don't break the build.
-- Adding a new example requires one test file plus two `foreach` entries in
-  CMakeLists.txt.
+- Adding a new example requires one short test file (using the harness) plus
+  adding the name to the `foreach` loops in CMakeLists.txt.
 - Future parallel tests (exNp) slot in with `LABELS "parallel;examples-fast"`.

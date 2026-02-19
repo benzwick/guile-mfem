@@ -201,6 +201,7 @@ foreach(ex ex0 ex0-lisp ex1 ex1-lisp ex2 ex2-lisp)
   add_test(
     NAME examples-fast-${ex}
     COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+      -L ${CMAKE_CURRENT_SOURCE_DIR}
       "${CMAKE_CURRENT_SOURCE_DIR}/test/examples/test-${ex}.scm")
   set_tests_properties(examples-fast-${ex} PROPERTIES
     LABELS "serial;examples-fast"
@@ -212,6 +213,7 @@ foreach(ex ex0 ex0-lisp)
   add_test(
     NAME examples-full-${ex}
     COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+      -L ${CMAKE_CURRENT_SOURCE_DIR}
       "${CMAKE_CURRENT_SOURCE_DIR}/test/examples/test-${ex}.scm")
   set_tests_properties(examples-full-${ex} PROPERTIES
     LABELS "serial;examples-full"
@@ -223,6 +225,7 @@ foreach(ex ex1 ex1-lisp ex2 ex2-lisp)
   add_test(
     NAME examples-full-${ex}
     COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+      -L ${CMAKE_CURRENT_SOURCE_DIR}
       "${CMAKE_CURRENT_SOURCE_DIR}/test/examples/test-${ex}.scm")
   set_tests_properties(examples-full-${ex} PROPERTIES
     LABELS "serial;examples-full"
