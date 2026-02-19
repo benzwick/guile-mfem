@@ -139,6 +139,28 @@ bool HasNURBSExt() const { return self->NURBSext != nullptr; }
 Or fix SWIG Guile's pointer wrapping to return `#f` for null pointers
 (this would be an upstream SWIG change).
 
+## Segfault when importing (mfem gridfunc) with (mfem bilinearform)
+
+**Affects:** test-domain-int (and any code that imports both modules)
+
+Importing `(mfem gridfunc)` in the same script as `(mfem bilinearform)`
+causes a segfault during module loading. Each module works independently,
+but their combination crashes.
+
+**Minimal reproducer:**
+```scheme
+(use-modules (mfem bilinearform) (mfem gridfunc))  ;; segfault
+```
+
+**Workaround:** Avoid importing both modules in the same script. In
+test-domain-int.scm, use raw `<Vector>` with `(Assign x 1.0)` instead of
+`GridFunction-ProjectCoefficient`.
+
+**How to fix:** Likely a GOOPS class initialization ordering issue or a
+SWIG type table conflict when both modules register overlapping type
+hierarchies. Needs investigation — possibly related to the cross-module
+GOOPS method dispatch failure below.
+
 ## Cross-module GOOPS method dispatch failure
 
 **Affects:** ex2

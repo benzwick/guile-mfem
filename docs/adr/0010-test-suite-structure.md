@@ -16,7 +16,7 @@ CI should exercise all sample runs from each example's header.
 
 | Label | Contents |
 |-------|----------|
-| `unit` | version, vector, densemat, sparsemat, mesh |
+| `unit` | 59 unit tests (see ADR-0011 for full inventory) |
 | `examples-fast` | each example (+ -lisp variant) with default mesh only |
 | `examples-full` | all sample runs from each example's header comments |
 | `miniapps` | (reserved for future miniapp tests) |
@@ -78,13 +78,30 @@ Test runners must invoke examples **without** `--`:
 `build.sh` runs `ctest -L "unit|examples-fast"` — unit tests plus one fast run
 per example. The full suite runs in CI via `ctest -L serial`.
 
+### Module availability skipping
+
+Tests for uncompiled modules or unavailable external libraries use
+`SKIP_RETURN_CODE 77` (the CTest convention for "Not Run"). Each such test
+guards itself at the top of the file:
+
+```scheme
+(unless (false-if-exception (resolve-interface '(mfem point)))
+  (format (current-error-port) "SKIP: module (mfem point) not available~%")
+  (exit 77))
+```
+
+CTest shows these as "Not Run" rather than failures, keeping the pass/fail
+signal clean. See ADR-0011 for the full inventory of skip-guarded tests.
+
 ### Useful ctest invocations
 
 ```
-ctest -L unit            # 5 unit tests
+ctest -L unit            # 59 unit tests (active + skip-guarded)
+ctest -L "serial;unit"   # 41 serial unit tests
+ctest -L "parallel;unit" # 18 parallel unit tests (all skip until MPI added)
 ctest -L examples-fast   # 6 fast example tests
 ctest -L examples-full   # 6 full example tests
-ctest -L serial          # all 17 serial tests
+ctest -L serial          # all serial tests (unit + examples)
 ```
 
 ## Consequences
