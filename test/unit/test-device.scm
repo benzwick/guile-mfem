@@ -4,14 +4,14 @@
 ;; Unit tests for MFEM Device class.
 
 (use-modules (srfi srfi-64)
+             (oop goops)
              (mfem device))
-(use-modules (device-primitive))
 
 (test-begin "mfem-device")
 
 ;; Device construction with "cpu" backend
 (test-group "device-cpu"
-  (let ((dev (new-Device "cpu")))
+  (let ((dev (make <Device> "cpu")))
     (test-assert "Device created" dev)))
 
 (define runner (test-runner-current))

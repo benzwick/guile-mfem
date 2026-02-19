@@ -244,6 +244,21 @@ add_guile_mfem_module(socketstream
 Then add `(mfem socketstream)` to the `(mfem)` meta-module and implement
 the visualization step in each example.
 
+## Static factory methods not wrapped in GOOPS proxy
+
+**Affects:** test-periodic-mesh (and any code using `Mesh::MakeCartesian*D`,
+`Mesh::MakePeriodic`)
+
+C++ static factory methods like `Mesh::MakeCartesian1D(n)` and
+`Mesh::MakePeriodic(mesh, mapping)` are not exported by the GOOPS proxy
+module `(mfem mesh)`. SWIG wraps them as standalone functions in the
+primitive module (`Mesh-MakeCartesian1D`, `Mesh-MakePeriodic`) but the
+proxy code generator does not re-export non-method functions.
+
+**How to fix:** Extend `PostProcessProxy.cmake` (or the SWIG Guile code
+generator) to detect static method wrappers and export them as plain
+procedures from the proxy module.
+
 ## `UsesTensorBasis` not wrapped
 
 **Affects:** ex1 (partial assembly path)

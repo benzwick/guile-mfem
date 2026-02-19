@@ -8,21 +8,18 @@
              (mfem vector) (mfem operators)
              (mfem mesh) (mfem fe_coll) (mfem fespace)
              (mfem coefficient) (mfem lininteg) (mfem linearform))
-(use-modules (mesh-primitive) (fe_coll-primitive) (fespace-primitive)
-             (coefficient-primitive) (lininteg-primitive)
-             (linearform-primitive))
 
 (test-begin "mfem-linearform")
 
 ;; Basic assembly with DomainLFIntegrator
 (test-group "domain-lf-assemble"
-  (let* ((mesh (new-Mesh 4 4 "QUADRILATERAL"))
-         (fec  (new-H1-FECollection 1 2))
-         (fes  (new-FiniteElementSpace mesh fec))
-         (one  (new-ConstantCoefficient 1.0))
-         (b    (new-LinearForm fes)))
-    (LinearForm-AddDomainIntegrator b (new-DomainLFIntegrator one))
-    (LinearForm-Assemble b)
+  (let* ((mesh (make <Mesh> 4 4 "QUADRILATERAL"))
+         (fec  (make <H1-FECollection> 1 2))
+         (fes  (make <FiniteElementSpace> mesh fec))
+         (one  (make <ConstantCoefficient> 1.0))
+         (b    (make <LinearForm> fes)))
+    (AddDomainIntegrator b (make <DomainLFIntegrator> one))
+    (Assemble b)
     (test-assert "LinearForm size > 0" (> (Size b) 0))
     ;; Integrating constant 1.0 over unit square should give area = 1.0
     ;; Sum of all DOF contributions approximates the integral
@@ -31,13 +28,13 @@
 
 ;; Assembly on triangle mesh
 (test-group "domain-lf-triangle"
-  (let* ((mesh (new-Mesh 2 2 "TRIANGLE"))
-         (fec  (new-H1-FECollection 1 2))
-         (fes  (new-FiniteElementSpace mesh fec))
-         (one  (new-ConstantCoefficient 1.0))
-         (b    (new-LinearForm fes)))
-    (LinearForm-AddDomainIntegrator b (new-DomainLFIntegrator one))
-    (LinearForm-Assemble b)
+  (let* ((mesh (make <Mesh> 2 2 "TRIANGLE"))
+         (fec  (make <H1-FECollection> 1 2))
+         (fes  (make <FiniteElementSpace> mesh fec))
+         (one  (make <ConstantCoefficient> 1.0))
+         (b    (make <LinearForm> fes)))
+    (AddDomainIntegrator b (make <DomainLFIntegrator> one))
+    (Assemble b)
     (test-assert "triangle LF assembled" (> (Size b) 0))))
 
 (define runner (test-runner-current))

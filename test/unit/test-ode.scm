@@ -8,24 +8,24 @@
 (skip-unless '(mfem ode))
 
 (use-modules (srfi srfi-64)
+             (oop goops)
              (mfem ode) (mfem vector))
-(use-modules (ode-primitive))
 
 (test-begin "mfem-ode")
 
 ;; ForwardEulerSolver construction
 (test-group "forward-euler"
-  (let ((solver (new-ForwardEulerSolver)))
+  (let ((solver (make <ForwardEulerSolver>)))
     (test-assert "ForwardEulerSolver created" solver)))
 
 ;; RK2Solver construction
 (test-group "rk2"
-  (let ((solver (new-RK2Solver)))
+  (let ((solver (make <RK2Solver>)))
     (test-assert "RK2Solver created" solver)))
 
 ;; RK4Solver construction
 (test-group "rk4"
-  (let ((solver (new-RK4Solver)))
+  (let ((solver (make <RK4Solver>)))
     (test-assert "RK4Solver created" solver)))
 
 (define runner (test-runner-current))

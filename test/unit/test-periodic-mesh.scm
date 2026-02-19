@@ -5,31 +5,31 @@
 ;; Requires MakePeriodic and CreatePeriodicVertexMapping methods.
 
 ;; Guard: skip if MakePeriodic is not available
-;; (It may be in mesh module but the static method might not be wrapped)
+;; (Static methods MakeCartesian1D and MakePeriodic are not yet wrapped
+;; in the GOOPS proxy — see BUGS.md)
 (unless (false-if-exception
           (begin
             (resolve-interface '(mfem mesh))
-            ;; Check if MakePeriodic is available as a procedure
-            (module-ref (resolve-interface '(mfem mesh)) 'Mesh-MakePeriodic)))
-  (format (current-error-port) "SKIP: Mesh-MakePeriodic not available~%")
+            (module-ref (resolve-interface '(mfem mesh)) 'MakePeriodic)))
+  (format (current-error-port) "SKIP: MakePeriodic not available~%")
   (exit 77))
 
 (use-modules (srfi srfi-64)
+             (oop goops)
              (mfem mesh) (mfem vector))
-(use-modules (mesh-primitive))
 
 (test-begin "mfem-periodic-mesh")
 
 ;; 1D periodic mesh
 (test-group "1d-periodic"
   (let* ((n 3)
-         (orig (Mesh-MakeCartesian1D n))
-         (trans (new-Vector 1)))
-    (Vector-set trans 0 1.0)
+         (orig (MakeCartesian1D n))
+         (trans (make <Vector> 1)))
+    (set trans 0 1.0)
     ;; CreatePeriodicVertexMapping + MakePeriodic
-    (let* ((mapping (Mesh-CreatePeriodicVertexMapping orig trans))
-           (mesh (Mesh-MakePeriodic orig mapping)))
-      (test-equal "1D periodic NV" n (Mesh-GetNV mesh)))))
+    (let* ((mapping (CreatePeriodicVertexMapping orig trans))
+           (mesh (MakePeriodic orig mapping)))
+      (test-equal "1D periodic NV" n (GetNV mesh)))))
 
 (define runner (test-runner-current))
 (test-end "mfem-periodic-mesh")

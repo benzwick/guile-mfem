@@ -7,16 +7,16 @@
 (skip-unless '(mfem segment))
 
 (use-modules (srfi srfi-64)
+             (oop goops)
              (mfem segment))
-(use-modules (segment-primitive))
 
 (test-begin "mfem-segment")
 
 ;; Segment construction and attributes
 (test-group "construction"
-  (let ((seg (new-Segment)))
-    (Segment-SetAttribute seg 1)
-    (test-equal "Segment GetAttribute" 1 (Segment-GetAttribute seg))))
+  (let ((seg (make <Segment>)))
+    (SetAttribute seg 1)
+    (test-equal "Segment GetAttribute" 1 (GetAttribute seg))))
 
 (define runner (test-runner-current))
 (test-end "mfem-segment")

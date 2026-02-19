@@ -7,8 +7,8 @@
 (skip-unless '(mfem ncmesh))
 
 (use-modules (srfi srfi-64)
+             (oop goops)
              (mfem ncmesh) (mfem mesh) (mfem array))
-(use-modules (ncmesh-primitive) (mesh-primitive) (array-primitive))
 
 ;; MFEM data directory (set by CTest via MFEM_DATA_DIR environment variable)
 (define mfem-data-dir (getenv "MFEM_DATA_DIR"))
@@ -17,21 +17,21 @@
 
 ;; GeneralRefinement with RefinementArray
 (test-group "general-refinement"
-  (let* ((mesh (new-Mesh (string-append mfem-data-dir "/inline-quad.mesh") 1 1))
-         (ne-before (Mesh-GetNE mesh))
-         (refs (new-RefinementArray)))
-    (RefinementArray-Append refs (new-Refinement 0 #b11))
-    (Mesh-GeneralRefinement mesh refs)
+  (let* ((mesh (make <Mesh> (string-append mfem-data-dir "/inline-quad.mesh") 1 1))
+         (ne-before (GetNE mesh))
+         (refs (make <RefinementArray>)))
+    (Append refs (make <Refinement> 0 #b11))
+    (GeneralRefinement mesh refs)
     (test-assert "NE increased after refinement"
-      (> (Mesh-GetNE mesh) ne-before))))
+      (> (GetNE mesh) ne-before))))
 
 ;; GetRefinementTransforms
 (test-group "refinement-transforms"
-  (let* ((mesh (new-Mesh (string-append mfem-data-dir "/inline-quad.mesh") 1 1)))
-    (let ((refs (new-RefinementArray)))
-      (RefinementArray-Append refs (new-Refinement 0 #b11))
-      (Mesh-GeneralRefinement mesh refs))
-    (let ((cft (Mesh-GetRefinementTransforms mesh)))
+  (let* ((mesh (make <Mesh> (string-append mfem-data-dir "/inline-quad.mesh") 1 1)))
+    (let ((refs (make <RefinementArray>)))
+      (Append refs (make <Refinement> 0 #b11))
+      (GeneralRefinement mesh refs))
+    (let ((cft (GetRefinementTransforms mesh)))
       (test-assert "GetRefinementTransforms returns object" cft))))
 
 (define runner (test-runner-current))

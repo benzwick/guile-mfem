@@ -10,8 +10,8 @@
   (exit 77))
 
 (use-modules (srfi srfi-64)
+             (oop goops)
              (mfem gslib))
-(use-modules (gslib-primitive))
 
 (test-begin "mfem-gslib")
 

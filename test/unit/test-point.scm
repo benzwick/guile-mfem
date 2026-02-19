@@ -7,17 +7,17 @@
 (skip-unless '(mfem point))
 
 (use-modules (srfi srfi-64)
+             (oop goops)
              (mfem point))
-(use-modules (point-primitive))
 
 (test-begin "mfem-point")
 
 ;; Point construction and attributes
 (test-group "construction"
-  (let ((pt (new-Point 3)))
-    (test-equal "Point GetVertices" 3 (Point-GetVertices pt))
-    (Point-SetAttribute pt 1)
-    (test-equal "Point GetAttribute" 1 (Point-GetAttribute pt))))
+  (let ((pt (make <Point> 3)))
+    (test-equal "Point GetVertices" 3 (GetVertices pt))
+    (SetAttribute pt 1)
+    (test-equal "Point GetAttribute" 1 (GetAttribute pt))))
 
 (define runner (test-runner-current))
 (test-end "mfem-point")

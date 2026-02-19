@@ -7,16 +7,16 @@
 (skip-unless '(mfem geom))
 
 (use-modules (srfi srfi-64)
+             (oop goops)
              (mfem geom) (mfem mesh))
-(use-modules (geom-primitive) (mesh-primitive))
 
 (test-begin "mfem-geom")
 
 ;; GetElementGeometry on a triangle mesh
 (test-group "element-geometry"
-  (let ((mesh (new-Mesh 2 2 "TRIANGLE")))
+  (let ((mesh (make <Mesh> 2 2 "TRIANGLE")))
     (test-assert "GetElementGeometry returns value"
-      (integer? (Mesh-GetElementGeometry mesh 0)))))
+      (integer? (GetElementGeometry mesh 0)))))
 
 (define runner (test-runner-current))
 (test-end "mfem-geom")
