@@ -38,8 +38,12 @@
 
 (use-modules (oop goops) (mfem) (ice-9 getopt-long))
 
-;; NOTE: NURBS degree elevation, SuiteSparse, and GLVis visualization
-;;       are not yet supported.
+;; NOTE: SuiteSparse and GLVis visualization are not yet supported.
+;;
+;; BUG: NURBS degree elevation is skipped because SWIG Guile wraps null
+;;      NURBSext as a truthy object. Error out on NURBS meshes until the
+;;      null-pointer bug is fixed (see BUGS.md "Null C++ pointers are
+;;      truthy in Scheme").
 
 (define options (getopt-long (command-line)
                  '((mesh        (single-char #\m) (value #t))
@@ -48,6 +52,10 @@
 (define mesh-file (option-ref options 'mesh "../data/beam-tri.mesh"))
 (define order (string->number (option-ref options 'order "1")))
 (define static-cond (option-ref options 'static-cond #f))
+
+(when (string-contains mesh-file "nurbs")
+  (error "NURBS meshes are not supported: NURBSext null-pointer check is \
+unreliable (see BUGS.md \"Null C++ pointers are truthy in Scheme\")"))
 
 (let* ((mesh (make <Mesh> mesh-file 1 1))
        (dim (Dimension mesh)))

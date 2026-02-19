@@ -113,11 +113,22 @@ is false for null. In Guile the wrapped null pointer is truthy, so the
 creates `H1_FECollection` with order=1) is never reached. This only
 matters when `order <= 0`.
 
+The examples now error out when `order <= 0` rather than taking the
+broken isoparametric path. The corresponding test runs are marked
+`test-expect-fail`. When the null-pointer bug is fixed, these tests
+will XPASS, signaling that the error guard and xfail can be removed.
+
 **ex2.scm (steps 3, 5, 13):** The NURBS branches test `mesh->NURBSext`
 which is null for non-NURBS meshes. Since the wrapped null is truthy,
 `(slot-ref mesh 'NURBSext)` always evaluates to true. Calling
 `DegreeElevate` on a non-NURBS mesh crashes with "Mesh::DegreeElevate :
 Not a NURBS mesh!". The workaround is to skip the NURBS branches entirely.
+
+The examples now error out when a NURBS mesh is detected (by filename)
+rather than silently producing wrong results. The corresponding test
+runs are marked `test-expect-fail`. When the null-pointer bug is fixed,
+the filename guard can be replaced with a proper `NURBSext` check, the
+NURBS branches re-enabled, and the xfail annotations removed.
 
 **How to fix:** Add a helper to the SWIG interface that performs the null
 check in C++ and returns a Scheme boolean:
@@ -242,12 +253,17 @@ bindings automatically.
 `DegreeElevate` is wrapped and works correctly. The only reason it is
 skipped is the null-pointer check on `NURBSext` (see above). Once that
 bug is fixed, the NURBS branches in ex2 can be re-enabled and NURBS
-sample runs (`beam-quad-nurbs.mesh`, `beam-hex-nurbs.mesh`) will work.
+sample runs (`beam-quad-nurbs.mesh`, `beam-hex-nurbs.mesh`) will
+produce correct results. Currently these meshes run but produce
+silently wrong output (no degree elevation, standard H1 space).
 
 ## Isoparametric FE space (ex1)
 
 `OwnFEC` on `GridFunction` and `GetNodes` on `Mesh` are both wrapped.
-The isoparametric path (`order <= 0`) is implemented in ex1.scm but may
-not work correctly due to the null-pointer bug (see above). Once null
-detection is fixed, this path should work for NURBS meshes like
-`square-disc-nurbs.mesh` with `-o -1`.
+The isoparametric path (`order <= 0`) is implemented in ex1.scm but
+produces silently wrong results due to the null-pointer bug (see
+above): the truthy null from `GetNodes` triggers the `cond =>` branch
+which calls `OwnFEC` on the null pointer — this happens not to crash
+but may return an unintended FE collection. Once null detection is
+fixed, NURBS meshes like `square-disc-nurbs.mesh` with `-o -1` will
+correctly use the isoparametric/NURBS FE space.

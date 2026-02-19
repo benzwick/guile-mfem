@@ -29,6 +29,11 @@
 
 ;; NOTE: Partial assembly (-pa), full assembly (-fa), SuiteSparse,
 ;;       algebraic CEED, and GLVis visualization are not yet supported.
+;;
+;; BUG: NURBS meshes with -o -1 produce silently wrong results.
+;;      GetNodes returns a truthy-but-null SWIG wrapper, so the
+;;      isoparametric FE branch takes the wrong path (see BUGS.md
+;;      "Null C++ pointers are truthy in Scheme").
 
 (define options (getopt-long (command-line)
                  '((mesh        (single-char #\m) (value #t))
@@ -49,6 +54,11 @@
                                (* (log 2.0) dim))))))
   (do ((l 0 (+ l 1))) ((>= l ref-levels))
     (UniformRefinement mesh))
+  ;; BUG: Isoparametric path (order <= 0) is broken — GetNodes returns a
+  ;;      truthy null pointer (see BUGS.md). Remove this guard when fixed.
+  (when (<= order 0)
+    (error "Isoparametric/NURBS FE space (order <= 0) is not supported: \
+GetNodes returns a truthy null pointer (see BUGS.md)"))
   (let* ((fec (if (> order 0)
                   (make <H1-FECollection> order dim)
                   (let ((nodes (GetNodes mesh)))

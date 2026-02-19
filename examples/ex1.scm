@@ -80,13 +80,17 @@
 ;; 5. Define a finite element space on the mesh. Here we use continuous
 ;;    Lagrange finite elements of the specified order. If order < 1, we
 ;;    instead use an isoparametric/isogeometric space.
+;; BUG: Isoparametric path (order <= 0) is broken — GetNodes returns a
+;;      truthy null pointer (see BUGS.md "Null C++ pointers are truthy in
+;;      Scheme"). Error out until the bug is fixed; remove this guard and
+;;      the code below will work correctly.
+(when (<= order 0)
+  (error "Isoparametric/NURBS FE space (order <= 0) is not supported: \
+GetNodes returns a truthy null pointer (see BUGS.md)"))
 (define fec
   (cond
     ((> order 0)
      (make <H1-FECollection> order dim))
-    ;; NOTE: SWIG Guile may wrap null mesh nodes as a truthy object.
-    ;;       If order <= 0 causes errors, ensure the mesh supports
-    ;;       isoparametric FEs (e.g. NURBS meshes).
     ((GetNodes mesh)
      => (lambda (nodes)
           (let ((node-fec (OwnFEC nodes)))

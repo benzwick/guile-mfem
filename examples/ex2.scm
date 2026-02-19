@@ -65,9 +65,18 @@
 
 ;; 3. Select the order of the finite element discretization space. For NURBS
 ;;    meshes, we increase the order by degree elevation.
-;; NOTE: Skip NURBS degree elevation (step 3) — SWIG Guile wraps null
-;;       NURBSext as a truthy object, so the null-pointer check does not work.
-;;       Non-NURBS meshes (the default beam-tri.mesh) work correctly.
+;; BUG: Skip NURBS degree elevation (step 3) — SWIG Guile wraps null
+;;      NURBSext as a truthy object, so the null-pointer check does not
+;;      work. NURBS meshes (beam-quad-nurbs.mesh, beam-hex-nurbs.mesh)
+;;      would produce silently wrong results: no degree elevation and
+;;      standard H1 FE space instead of NURBS FE space (see BUGS.md
+;;      "Null C++ pointers are truthy in Scheme").
+;;      Error out on NURBS meshes until the null-pointer bug is fixed.
+;;      The filename check is a workaround — the proper fix is to make
+;;      NURBSext null-detectable so the C++ branch logic can be ported.
+(when (string-contains mesh-file "nurbs")
+  (error "NURBS meshes are not supported: NURBSext null-pointer check is \
+unreliable (see BUGS.md \"Null C++ pointers are truthy in Scheme\")"))
 
 ;; 4. Refine the mesh to increase the resolution. In this example we do
 ;;    'ref_levels' of uniform refinement. We choose 'ref_levels' to be the
@@ -84,7 +93,7 @@
 ;;    dimension is specified by the last argument of the FiniteElementSpace
 ;;    constructor. For NURBS meshes, we use the (degree elevated) NURBS space
 ;;    associated with the mesh nodes.
-;; NOTE: Skip NURBS FE space branch (step 5) — see step 3 note above.
+;; BUG: Skip NURBS FE space branch (step 5) — see step 3 BUG note.
 (define fec (make <H1-FECollection> order dim))
 (define fespace (make <FiniteElementSpace> mesh fec dim))
 (format #t "Number of finite element unknowns: ~a~%" (GetTrueVSize fespace))
@@ -174,7 +183,7 @@
 ;;     element displacement field. We assume that the initial mesh (read from
 ;;     the file) is not higher order curved mesh compared to the chosen FE
 ;;     space.
-;; NOTE: Skip NURBS check — always set the nodal FE space (see step 3 note).
+;; BUG: Skip NURBS check — always set the nodal FE space (see step 3 BUG).
 ;; NOTE: Use primitive call as workaround for cross-module GOOPS dispatch
 ;;       issue (mesh module does not import fespace module).
 ((@@ (mfem mesh) primitive:Mesh-SetNodalFESpace) mesh fespace)
