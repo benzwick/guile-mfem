@@ -3,10 +3,8 @@
 
 ;; Unit tests for MFEM Table (from PyMFEM test_table.py).
 
-;; Guard: skip if required module is not compiled
-(unless (false-if-exception (resolve-interface '(mfem table)))
-  (format (current-error-port) "SKIP: module (mfem table) not available~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem table))
 
 (use-modules (srfi srfi-64)
              (mfem table) (mfem mesh))

@@ -3,10 +3,8 @@
 
 ;; Unit tests for MFEM Geometry types (from PyMFEM test_geom.py).
 
-;; Guard: skip if required module is not compiled
-(unless (false-if-exception (resolve-interface '(mfem geom)))
-  (format (current-error-port) "SKIP: module (mfem geom) not available~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem geom))
 
 (use-modules (srfi srfi-64)
              (mfem geom) (mfem mesh))

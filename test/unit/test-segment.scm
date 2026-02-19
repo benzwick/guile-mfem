@@ -3,10 +3,8 @@
 
 ;; Unit tests for MFEM Segment element (from PyMFEM test_segment.py).
 
-;; Guard: skip if required module is not compiled
-(unless (false-if-exception (resolve-interface '(mfem segment)))
-  (format (current-error-port) "SKIP: module (mfem segment) not available~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem segment))
 
 (use-modules (srfi srfi-64)
              (mfem segment))

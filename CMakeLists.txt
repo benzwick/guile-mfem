@@ -183,6 +183,7 @@ foreach(test ${SERIAL_UNIT_TESTS})
   add_test(
     NAME ${test}
     COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+      -L ${CMAKE_CURRENT_SOURCE_DIR}
       "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/${test}.scm")
   set_tests_properties(${test} PROPERTIES
     LABELS "serial;unit"
@@ -206,6 +207,7 @@ foreach(test ${PARALLEL_UNIT_TESTS})
   add_test(
     NAME ${test}
     COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
+      -L ${CMAKE_CURRENT_SOURCE_DIR}
       "${CMAKE_CURRENT_SOURCE_DIR}/test/unit/${test}.scm")
   set_tests_properties(${test} PROPERTIES
     LABELS "parallel;unit"

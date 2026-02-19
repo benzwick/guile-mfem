@@ -85,9 +85,8 @@ Tests for uncompiled modules or unavailable external libraries use
 guards itself at the top of the file:
 
 ```scheme
-(unless (false-if-exception (resolve-interface '(mfem point)))
-  (format (current-error-port) "SKIP: module (mfem point) not available~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem point))
 ```
 
 CTest shows these as "Not Run" rather than failures, keeping the pass/fail

@@ -3,10 +3,8 @@
 
 ;; Unit tests for MFEM BlockMatrix (from PyMFEM test_blockmatrix.py).
 
-;; Guard: skip if required module is not compiled
-(unless (false-if-exception (resolve-interface '(mfem blockmatrix)))
-  (format (current-error-port) "SKIP: module (mfem blockmatrix) not available~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem blockmatrix))
 
 (use-modules (srfi srfi-64)
              (oop goops)

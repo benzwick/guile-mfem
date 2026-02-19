@@ -4,10 +4,8 @@
 ;; Unit tests for MFEM ODE solvers (from MFEM test_ode.cpp).
 ;; Requires (mfem ode) module and SWIG directors for TimeDependentOperator.
 
-;; Guard: skip if required module is not compiled
-(unless (false-if-exception (resolve-interface '(mfem ode)))
-  (format (current-error-port) "SKIP: module (mfem ode) not available~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem ode))
 
 (use-modules (srfi srfi-64)
              (mfem ode) (mfem vector))

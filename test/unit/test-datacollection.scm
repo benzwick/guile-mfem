@@ -3,10 +3,8 @@
 
 ;; Unit tests for MFEM VisItDataCollection (from PyMFEM test_datacollection.py).
 
-;; Guard: skip if required module is not compiled
-(unless (false-if-exception (resolve-interface '(mfem datacollection)))
-  (format (current-error-port) "SKIP: module (mfem datacollection) not available~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem datacollection))
 
 (use-modules (srfi srfi-64)
              (mfem datacollection)

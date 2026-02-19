@@ -3,10 +3,8 @@
 
 ;; Unit tests for MFEM BlockOperator (from PyMFEM test_blockoperator.py).
 
-;; Guard: skip if required module is not compiled
-(unless (false-if-exception (resolve-interface '(mfem blockoperator)))
-  (format (current-error-port) "SKIP: module (mfem blockoperator) not available~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem blockoperator))
 
 (use-modules (srfi srfi-64)
              (oop goops)

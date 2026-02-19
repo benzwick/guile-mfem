@@ -3,10 +3,8 @@
 
 ;; Unit tests for MFEM ComplexOperator (from PyMFEM test_complex_operator.py).
 
-;; Guard: skip if required module is not compiled
-(unless (false-if-exception (resolve-interface '(mfem complex_operator)))
-  (format (current-error-port) "SKIP: module (mfem complex_operator) not available~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem complex_operator))
 
 (use-modules (srfi srfi-64)
              (oop goops)

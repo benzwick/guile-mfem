@@ -3,10 +3,8 @@
 
 ;; Unit tests for MFEM NCMesh / general refinement (from PyMFEM test_ncmesh.py).
 
-;; Guard: skip if required module is not compiled
-(unless (false-if-exception (resolve-interface '(mfem ncmesh)))
-  (format (current-error-port) "SKIP: module (mfem ncmesh) not available~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem ncmesh))
 
 (use-modules (srfi srfi-64)
              (mfem ncmesh) (mfem mesh) (mfem array))

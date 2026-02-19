@@ -5,10 +5,8 @@
 ;; (from MFEM test_hypre_vector.cpp).
 ;; Requires parallel MFEM build with Hypre and MPI bindings.
 
-;; Guard: skip if parallel module is not compiled
-(unless (false-if-exception (resolve-interface '(mfem par)))
-  (format (current-error-port) "SKIP: module (mfem par) not available (requires MPI + Hypre)~%")
-  (exit 77))
+(use-modules (test unit-harness))
+(skip-unless '(mfem par))
 
 (use-modules (srfi srfi-64)
              (mfem par))
