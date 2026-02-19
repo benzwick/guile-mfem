@@ -75,18 +75,67 @@ Tests are registered via `foreach` loops over `SERIAL_UNIT_TESTS` and
 `PARALLEL_UNIT_TESTS` lists. All unit tests get `SKIP_RETURN_CODE 77` and
 `MFEM_DATA_DIR` in their environment.
 
+### Migrated PyMFEM tests removed from tree
+
+19 Python tests have real Guile equivalents in `test/unit/` and are removed
+from `test/`.  Git history preserves them for reference.
+
+| Removed Python test | Guile equivalent |
+|---------------------|------------------|
+| `test_array.py` | `test-array.scm` |
+| `test_blockmatrix.py` | `test-blockmatrix.scm` |
+| `test_blockoperator.py` | `test-blockoperator.scm` |
+| `test_coefficient.py` | `test-coefficient.scm` |
+| `test_complex_operator.py` | `test-complex-operator.scm` |
+| `test_datacollection.py` | `test-datacollection.scm` |
+| `test_densemat.py` | `test-densemat.scm` |
+| `test_fespace.py` | `test-fespace.scm` |
+| `test_geom.py` | `test-geom.scm` |
+| `test_gridfunc.py` | `test-gridfunc.scm` |
+| `test_intrules.py` | `test-intrules.scm` |
+| `test_mesh.py` | `test-mesh.scm` |
+| `test_ncmesh.py` | `test-ncmesh.scm` |
+| `test_periodic_mesh.py` | `test-periodic-mesh.scm` |
+| `test_point.py` | `test-point.scm` |
+| `test_segment.py` | `test-segment.scm` |
+| `test_sparsemat.py` | `test-sparsemat.scm` |
+| `test_table.py` | `test-table.scm` |
+| `test_vector.py` | `test-vector.scm` |
+
+### PyMFEM tests kept — Guile equivalents are placeholder-only
+
+These Python tests remain in `test/` because their Guile equivalents in
+`test/unit/` are stub files (placeholder assertions only).  They serve as
+reference for completing the Guile implementations.
+
+| Kept Python test | Guile stub | What it tests |
+|------------------|------------|---------------|
+| `test_chypre.py` | `test-chypre.scm` | CHypreVec complex Hypre vector ops (add, subtract, dot) via SciPy + MPI |
+| `test_complexmg.py` | `test-complexmg.scm` | Complex multigrid Helmholtz solver (~450 lines); Numba JIT, ParComplex* forms, MPI |
+| `test_merge_gridfunction.py` | `test-merge-gridfunction.scm` | ParGridFunction → serial GridFunction merging and re-partitioning; Numba JIT, MPI |
+| `test_pfespace.py` | `test-pfespace.scm` | ParFiniteElementSpace DOF transforms, Dof_TrueDof_Matrix, HypreParMatrix; SciPy/NumPy |
+| `issues/test_3960.py` | `test-par-datacollection.scm` | VisItDataCollection parallel→serial conversion via GetSerialMesh/GetSerialGridFunction; uses test data in `issues/data_3960/` |
+
 ### PyMFEM tests NOT ported
 
 | Test | Reason |
 |------|--------|
-| `test_array2.py` | NumPy `GetDataArray()` memory sharing |
-| `test_dofloc.py` | Heavy NumPy array manipulation |
-| `test_stringio.py` | Python `io.StringIO` bridge |
-| `test_numba.py` | Numba JIT (replaced by test-custom-coefficient.scm concept) |
-| `test_memory.py` | Python `tracemalloc` |
-| `test_module.py` | Python test runner (CTest replaces this) |
-| `test_deprecated.py` | Python-binding-specific deprecated API |
-| `test_tmop.py` | Complex + multiple uncompiled modules |
+| `test_array2.py` | Tests `uintArray`, `int8Array`, `int64Array`, `boolArray` with NumPy `GetDataArray()` — these alternative integer/bool array types are not wrapped for Guile |
+| `test_deprecated.py` | Tests Python-binding-specific deprecated API (`intp()`, `Triangle.GetNFaces` pointer arg) |
+| `test_dofloc.py` | DOF location mapping via `GetConformingRestriction`, `BuildDofToArrays`, `GetElementForDof`; uses NumPy arrays for coordinate computation |
+| `test_gz.py` | Gzip I/O round-trip for GridFunction and Mesh (`.gz` extension, `PrintGZ`); uses NumPy `GetDataArray()` and Python `io.StringIO` |
+| `test_memory.py` | Memory leak detection: runs ex1p 30 times, reports RSS via `resource.getrusage` |
+| `test_module.py` | Mini test runner that invokes `test_point.py`, `test_segment.py`, `test_mesh.py`; CTest replaces this |
+| `test_numba.py` | Numba JIT `@cfunc` / `@mfem.jit` for scalar, vector, and matrix coefficients with dependency chaining and complex-valued support |
+| `test_stringio.py` | Tests `WriteToStream` for Mesh, GridFunction, Vector using Python `io.StringIO` |
+| `test_tmop.py` | TMOP mesh optimization (target-matrix paradigm); requires `tmop` module, `NonlinearForm`, `PyCoefficient`, GSLIB |
+
+### PyMFEM runners NOT ported
+
+| Runner | What it does | Status |
+|--------|-------------|--------|
+| `run_tests.py` | Runs each `test_*.py` in serial and parallel (mpirun); CTest replaces this |
+| `run_examples.py` | Cross-validates C++ MFEM examples against Python examples: runs both, compares stdout (last 5 lines, numbers to 3 significant digits) and generated output files; **guile-mfem does not yet have equivalent C++↔Guile output comparison** |
 
 ### MFEM C++ tests NOT ported
 
