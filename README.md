@@ -1,5 +1,7 @@
 # Guile-MFEM: GNU Guile bindings for MFEM
 
+[![Build and Test](https://github.com/benzwick/guile-mfem/actions/workflows/build-and-test-dispatch.yml/badge.svg)](https://github.com/benzwick/guile-mfem/actions/workflows/build-and-test-dispatch.yml)
+
 Guile-MFEM brings [MFEM](https://mfem.org/),
 a high-performance finite element method (FEM) library,
 to GNU Guile 3.0 via SWIG.
