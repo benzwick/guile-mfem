@@ -190,12 +190,12 @@ jobs:
     - name: Run tests (serial)
       if: inputs.parallel == false
       run: |
-        cd build && LD_LIBRARY_PATH=${{ github.workspace }}/mfem-install/lib ctest --output-on-failure -L serial
+        cd build && LD_LIBRARY_PATH=${{ github.workspace }}/mfem-install/lib ctest --output-on-failure -V -L serial
 
     - name: Run tests (parallel)
       if: inputs.parallel
       run: |
-        cd build && LD_LIBRARY_PATH=${{ github.workspace }}/mfem-install/lib ctest --output-on-failure -L parallel
+        cd build && LD_LIBRARY_PATH=${{ github.workspace }}/mfem-install/lib ctest --output-on-failure -V -L parallel
 
     # -------------------------------------------------------------------------------------------------
     # Generate an artifact (output of tests) on failure
