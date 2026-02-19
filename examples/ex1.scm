@@ -4,18 +4,23 @@
 ;;                                MFEM Example 1
 ;;
 ;; Sample runs:  guile -L build ex1.scm
-;;               guile -L build ex1.scm -m ../data/star.mesh
 ;;               guile -L build ex1.scm -m ../data/square-disc.mesh
+;;               guile -L build ex1.scm -m ../data/star.mesh
+;;               guile -L build ex1.scm -m ../data/star-mixed.mesh
 ;;               guile -L build ex1.scm -m ../data/escher.mesh
 ;;               guile -L build ex1.scm -m ../data/fichera.mesh
 ;;               guile -L build ex1.scm -m ../data/fichera-mixed.mesh
 ;;               guile -L build ex1.scm -m ../data/toroid-wedge.mesh
+;;               guile -L build ex1.scm -m ../data/octahedron.mesh -o 1
+;;               guile -L build ex1.scm -m ../data/periodic-annulus-sector.msh
+;;               guile -L build ex1.scm -m ../data/periodic-torus-sector.msh
 ;;               guile -L build ex1.scm -m ../data/square-disc-p2.vtk -o 2
 ;;               guile -L build ex1.scm -m ../data/square-disc-p3.mesh -o 3
 ;;               guile -L build ex1.scm -m ../data/square-disc-nurbs.mesh -o -1
 ;;               guile -L build ex1.scm -m ../data/star-mixed-p2.mesh -o 2
 ;;               guile -L build ex1.scm -m ../data/disc-nurbs.mesh -o -1
 ;;               guile -L build ex1.scm -m ../data/pipe-nurbs.mesh -o -1
+;;               guile -L build ex1.scm -m ../data/fichera-mixed-p2.mesh -o 2
 ;;               guile -L build ex1.scm -m ../data/star-surf.mesh
 ;;               guile -L build ex1.scm -m ../data/square-disc-surf.mesh
 ;;               guile -L build ex1.scm -m ../data/inline-segment.mesh
@@ -24,6 +29,7 @@
 ;;               guile -L build ex1.scm -m ../data/fichera-amr.mesh
 ;;               guile -L build ex1.scm -m ../data/mobius-strip.mesh
 ;;               guile -L build ex1.scm -m ../data/mobius-strip.mesh -o -1 -s
+;;               guile -L build ex1.scm -m ../data/nc3-nurbs.mesh -o -1
 ;;
 ;; Description:  This example code demonstrates the use of MFEM to define a
 ;;               simple finite element discretization of the Poisson problem

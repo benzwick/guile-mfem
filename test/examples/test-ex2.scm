@@ -9,9 +9,10 @@
 
 (test-begin "mfem-ex2")
 
-(run "-m" "beam-tri.mesh")
+(run)
 
 (when full?
+  (run "-m" "beam-tri.mesh")
   (run "-m" "beam-quad.mesh")
   (run "-m" "beam-tet.mesh")
   (run "-m" "beam-hex.mesh")

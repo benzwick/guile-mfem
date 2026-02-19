@@ -9,7 +9,7 @@
 
 (test-begin "mfem-ex0-lisp")
 
-(run "-m" "star.mesh")
+(run)
 
 (when full?
   (run "-m" "fichera.mesh")

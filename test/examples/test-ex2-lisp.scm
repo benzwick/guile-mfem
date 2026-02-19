@@ -9,12 +9,18 @@
 
 (test-begin "mfem-ex2-lisp")
 
-(run "-m" "beam-tri.mesh")
+(run)
 
 (when full?
+  (run "-m" "beam-tri.mesh")
   (run "-m" "beam-quad.mesh")
   (run "-m" "beam-tet.mesh")
   (run "-m" "beam-hex.mesh")
-  (run "-m" "beam-quad.mesh" "-o" "3" "-s"))
+  (run "-m" "beam-wedge.mesh")
+  (run "-m" "beam-quad.mesh" "-o" "3" "-s")
+
+  ;; NURBS meshes: xfail due to NURBSext null pointer bug (see BUGS.md)
+  (run/xfail "-m" "beam-quad-nurbs.mesh")
+  (run/xfail "-m" "beam-hex-nurbs.mesh"))
 
 (test-end/exit "mfem-ex2-lisp")
