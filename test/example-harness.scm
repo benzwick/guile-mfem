@@ -50,7 +50,7 @@
     (cond
       ((null? rest)
        (let* ((parts (if mesh (cons mesh (reverse others)) (reverse others)))
-              (base (string-join parts " ")))
+              (base (if (null? parts) "(default)" (string-join parts " "))))
          (if xfail?
              (string-append base " (xfail)")
              base)))
