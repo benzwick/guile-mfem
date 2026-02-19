@@ -4,8 +4,8 @@
 ;;                                MFEM Example 0
 ;;
 ;; Sample runs:  guile -L build ex0-lisp.scm
-;;               guile -L build ex0-lisp.scm -- -m ../data/fichera.mesh
-;;               guile -L build ex0-lisp.scm -- -m ../data/square-disc.mesh -o 2
+;;               guile -L build ex0-lisp.scm -m ../data/fichera.mesh
+;;               guile -L build ex0-lisp.scm -m ../data/square-disc.mesh -o 2
 ;;
 ;; Description: This example code demonstrates the most basic usage of MFEM to
 ;;              define a simple finite element discretization of the Poisson

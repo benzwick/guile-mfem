@@ -4,11 +4,11 @@
 ;;                                MFEM Example 2
 ;;
 ;; Sample runs:  guile -L build ex2-lisp.scm
-;;               guile -L build ex2-lisp.scm -- -m ../data/beam-tri.mesh
-;;               guile -L build ex2-lisp.scm -- -m ../data/beam-quad.mesh
-;;               guile -L build ex2-lisp.scm -- -m ../data/beam-tet.mesh
-;;               guile -L build ex2-lisp.scm -- -m ../data/beam-hex.mesh
-;;               guile -L build ex2-lisp.scm -- -m ../data/beam-quad.mesh -o 3 -s
+;;               guile -L build ex2-lisp.scm -m ../data/beam-tri.mesh
+;;               guile -L build ex2-lisp.scm -m ../data/beam-quad.mesh
+;;               guile -L build ex2-lisp.scm -m ../data/beam-tet.mesh
+;;               guile -L build ex2-lisp.scm -m ../data/beam-hex.mesh
+;;               guile -L build ex2-lisp.scm -m ../data/beam-quad.mesh -o 3 -s
 ;;
 ;; Description:  This example code solves a simple linear elasticity problem
 ;;               describing a multi-material cantilever beam.

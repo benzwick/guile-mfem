@@ -4,11 +4,11 @@
 ;;                                MFEM Example 1
 ;;
 ;; Sample runs:  guile -L build ex1-lisp.scm
-;;               guile -L build ex1-lisp.scm -- -m ../data/star.mesh
-;;               guile -L build ex1-lisp.scm -- -m ../data/square-disc.mesh
-;;               guile -L build ex1-lisp.scm -- -m ../data/fichera.mesh
-;;               guile -L build ex1-lisp.scm -- -m ../data/square-disc-nurbs.mesh -o -1
-;;               guile -L build ex1-lisp.scm -- -m ../data/mobius-strip.mesh -o -1 -s
+;;               guile -L build ex1-lisp.scm -m ../data/star.mesh
+;;               guile -L build ex1-lisp.scm -m ../data/square-disc.mesh
+;;               guile -L build ex1-lisp.scm -m ../data/fichera.mesh
+;;               guile -L build ex1-lisp.scm -m ../data/square-disc-nurbs.mesh -o -1
+;;               guile -L build ex1-lisp.scm -m ../data/mobius-strip.mesh -o -1 -s
 ;;
 ;; Description:  This example code demonstrates the use of MFEM to define a
 ;;               simple finite element discretization of the Poisson problem
