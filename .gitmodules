@@ -6,4 +6,4 @@
 	url = https://github.com/mfem/PyMFEM.git
 [submodule "_reference/swig"]
 	path = _reference/swig
-	url = https://github.com/benzwick/swig.git
+	url = https://github.com/swig/swig.git

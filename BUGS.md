@@ -51,8 +51,11 @@ public:
 swig -c++ -guile -Linkage module -proxy test.i  # segfault
 ```
 
-**Fix applied in:** `_reference/swig` submodule, branch `bz/guile-proxy-segfault-fix`
-**Upstream PR:** https://github.com/swig/swig/pull/3336
+**Fix applied in:** `_reference/swig` submodule (swig/swig master)
+**Upstream PR:** https://github.com/swig/swig/pull/3336 (merged)
+**Upstream commits:**
+- [`7c3040b0e8`](https://github.com/swig/swig/commit/7c3040b0e8) Fix segfault in Guile -proxy when class has public member variable
+- [`cb17bebea2`](https://github.com/swig/swig/commit/cb17bebea2) changes file entry for guile -proxy fix
 
 ## SWIG cross-module type cast lookup failure (FIXED)
 
@@ -95,8 +98,24 @@ if (!ocast) {
 where module 2 defines a type that inherits from a type in module 1, and
 module 1's type is already in the shared table when module 2 initializes.
 
-**Fix applied in:** `_reference/swig` submodule, branch `bz/fix-cross-module-type-cast`
-**Upstream PR:** https://github.com/swig/swig/pull/3337
+**Regression introduced in:** [`c840bb728a`](https://github.com/swig/swig/commit/c840bb728a) Making type casting thread-safe (identified by @wsfulton)
+
+**Fix applied in:** `_reference/swig` submodule (swig/swig master)
+**Upstream PR:** https://github.com/swig/swig/pull/3337 (merged)
+**Upstream commits:**
+- [`5dab6a8ed`](https://github.com/swig/swig/commit/5dab6a8ed) Fix cross-module type cast lookup in SWIG_InitializeModule
+- [`527585002`](https://github.com/swig/swig/commit/527585002) Try replicate issue described in #3337 (@wsfulton test scaffolding)
+- [`d2def07c7`](https://github.com/swig/swig/commit/d2def07c7) Fix test to reproduce cross-module type cast bug
+- [`dc42b05d4`](https://github.com/swig/swig/commit/dc42b05d4) Merge branch 'pull-3337-update'
+
+**Test notes:** The test uses three modules (A=Operator, B=DenseMatrix, C=factory)
+with `SWIG_TYPE_TABLE`. Module C forward-declares `DenseMatrix` instead of
+`%import`ing B, so C registers `DenseMatrix` in the shared type table without
+the inheritance cast. Load order A, C, B ensures B hits the buggy `else` branch
+when adding the `DenseMatrix→Operator` cast. The Guile test fails without the
+fix because `SWIG_TypeCheckStruct` uses pointer comparison. The Python test
+passes without the fix because Python uses string-based `SWIG_TypeCheck` —
+the bug is specific to languages using pointer-based type checking.
 
 ## Null C++ pointers are truthy in Scheme
 
@@ -325,3 +344,20 @@ which calls `OwnFEC` on the null pointer — this happens not to crash
 but may return an unintended FE collection. Once null detection is
 fixed, NURBS meshes like `square-disc-nurbs.mesh` with `-o -1` will
 correctly use the isoparametric/NURBS FE space.
+
+# TODO
+
+## Set minimum SWIG version and stop tracking master
+
+The `_reference/swig` submodule currently tracks swig/swig master because
+the two bug fixes above (#3336 and #3337) have not yet been included in a
+SWIG release. Once a SWIG release is made that includes both fixes, we
+should:
+
+1. Set a minimum required SWIG version in `CMakeLists.txt` (e.g.
+   `find_package(SWIG X.Y.Z REQUIRED)`)
+2. Stop using the submodule for building SWIG from source
+3. Update CI to install the released SWIG package instead of building
+   from the submodule
+4. Add multiple SWIG versions to the CI test matrix to catch
+   compatibility regressions
