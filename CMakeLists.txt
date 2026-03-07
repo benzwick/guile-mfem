@@ -171,6 +171,7 @@ set(SERIAL_UNIT_TESTS
   # From MFEM C++ — modules compiled
   test-bilinearform test-linearform test-solvers test-operator
   test-fe test-sparsesmoothers test-domain-int test-device
+  test-hcurl-hdiv test-dg
   # From MFEM C++ — not compiled / directors needed (skip-guarded)
   test-ode test-custom-coefficient
   # From MFEM C++ — external library dependencies (skip-guarded)
