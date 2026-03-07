@@ -18,7 +18,7 @@ features not yet available (parallel, external libraries).
 
 | Category | Label | Skip? | Count |
 |----------|-------|-------|-------|
-| Serial — modules compiled | `serial;unit` | No | 18 |
+| Serial — modules compiled | `serial;unit` | No | 23 |
 | Serial — uncompiled / external deps | `serial;unit` | Yes (exit 77) | 23 |
 | Parallel — MPI required | `parallel;unit` | Yes (exit 77) | 18 |
 
@@ -32,7 +32,7 @@ Tests use `SKIP_RETURN_CODE 77` (standard CTest convention):
 
 ### Test inventory
 
-**Serial unit tests (36 total):**
+**Serial unit tests (41 total):**
 
 Existing (5): test-version, test-vector, test-densemat, test-sparsemat, test-mesh
 
@@ -43,8 +43,9 @@ From PyMFEM — skip-guarded (10): test-point, test-segment, test-geom,
 test-table, test-ncmesh, test-blockmatrix, test-blockoperator,
 test-complex-operator, test-periodic-mesh, test-datacollection
 
-From MFEM C++ — active (8): test-bilinearform, test-linearform, test-solvers,
-test-operator, test-fe, test-sparsesmoothers, test-domain-int, test-device
+From MFEM C++ — active (13): test-bilinearform, test-linearform, test-solvers,
+test-operator, test-fe, test-sparsesmoothers, test-domain-int, test-device,
+test-hcurl-hdiv, test-dg, test-handle, test-mixed-bilinearform, test-boundary
 
 From MFEM C++ — skip-guarded (2): test-ode, test-custom-coefficient
 
