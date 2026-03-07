@@ -112,7 +112,7 @@
          (A    (make <OperatorHandle>))
          (B    (make <Vector>))
          (X    (make <Vector>))
-         (ess-bdr  (make <intArray> (GetNBE mesh)))
+         (ess-bdr  (make <intArray> (Max (slot-ref mesh 'bdr-attributes))))
          (ess-tdof (make <intArray>)))
     ;; Mark all boundaries as essential
     (Assign ess-bdr 1)
