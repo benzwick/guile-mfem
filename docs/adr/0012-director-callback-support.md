@@ -37,13 +37,40 @@ means:
 
 ### Impact on example porting
 
-| Example | Blocked Feature | Workaround |
-|---------|----------------|------------|
-| ex0–ex2 | None | Fully ported |
-| ex3 | `VectorFunctionCoefficient` for E_exact, f_exact | Constant vector RHS |
-| ex4 | `VectorFunctionCoefficient` for F_exact, f_exact | Constant vector RHS |
-| ex5 | `FunctionCoefficient`, `VectorFunctionCoefficient` | Not yet ported |
-| ex6–ex40 | Various `FunctionCoefficient` uses | Not yet ported |
+| Example | Status | Blocker |
+|---------|--------|---------|
+| ex0 | Fully ported | — |
+| ex1 | Fully ported | NURBS path blocked by null-pointer truthiness bug |
+| ex2 | Fully ported | NURBS path blocked by null-pointer truthiness bug |
+| ex3 | Partially ported | `VectorFunctionCoefficient` for E_exact, f_exact → constant RHS |
+| ex4 | Partially ported | `VectorFunctionCoefficient` for F_exact, f_exact → constant RHS |
+| ex5 | Not ported | `FunctionCoefficient` callbacks + `BlockVector`/`BlockOperator` modules |
+| ex6 | Not ported | `ZienkiewiczZhuEstimator`, `ThresholdRefiner` (estimators module) |
+| ex7 | Not ported | Custom `SnapNodes` function (director callback) |
+| ex8 | Not ported | `BlockOperator`, `BlockVector` modules |
+| ex9 | Not ported | `PyTimeDependentOperator`, `VectorPyCoefficient` (director) |
+| ex10 | Not ported | `PyTimeDependentOperator`, nonlinear callbacks |
+| ex14 | Fully ported | — (uses only `ConstantCoefficient`, DG methods) |
+| ex15–ex19 | Not ported | `PyTimeDependentOperator` or `VectorPyCoefficient` |
+| ex20 | Not ported | Custom `Operator` subclass (director) |
+| ex21 | Not ported | `ZienkiewiczZhuEstimator`, `ThresholdRefiner` (estimators module) |
+| ex22 | Not ported | `ComplexOperator` module, `FunctionCoefficient` |
+| ex23 | Not ported | `SecondOrderTimeDependentOperator` (ODE module) |
+| ex24–ex25 | Not ported | Numba JIT / `FunctionCoefficient` |
+| ex26 | Not ported | `PyGeometricMultigrid` (multigrid module, director) |
+| ex27 | Not ported | `VectorPyCoefficient` for coordinate transform |
+| ex28 | Not ported | `BuildNormalConstraints`, `SchurConstrainedSolver` (constraints module) |
+| ex29 | Not ported | `VectorPyCoefficient` for surface transform |
+| ex30–ex40 | Not ported | Various: Numba JIT, custom operators, uncompiled modules |
+
+### Blocker categories
+
+1. **Director / callback support** (primary blocker): ex3*, ex4*, ex5, ex7,
+   ex9–ex10, ex15–ex20, ex22, ex24–ex27, ex29–ex40
+2. **Uncompiled SWIG modules**: ex5 (blockvector), ex6/ex21 (estimators),
+   ex8 (blockoperator), ex22 (complex_operator), ex23 (ode),
+   ex26 (multigrid), ex28 (constraints)
+3. **Both**: ex5, ex9, ex10, ex22, ex26
 
 ### Possible approaches
 
@@ -83,14 +110,23 @@ support. Track progress in BUGS.md.
   elements, curl-curl/div-div integrators, and the solve workflow, but use
   simplified constant RHS instead of the exact-solution-derived RHS.
 
+- Example 14 is fully ported — DG methods use only `ConstantCoefficient`
+  because boundary conditions are imposed weakly through face integrators.
+
 - L² error computation against exact solutions is not possible until callback
   support is added.
 
-- Examples 5–40 remain unported. Each has specific coefficient requirements
-  documented in this ADR.
+- Of 40 serial examples, 5 are fully ported (ex0, ex1, ex2, ex14) and 2 are
+  partially ported (ex3, ex4). The remaining 33 are blocked by either
+  director/callback support (primary blocker) or uncompiled SWIG modules
+  (secondary blocker). See the portability matrix above for details.
 
 - Users who need custom coefficients must currently implement them in C++ and
   wrap via SWIG, which defeats much of the purpose of Scheme bindings.
 
 - Once approach 2 is implemented, examples 3–4 can be upgraded to use the
   exact solutions, and examples 5+ can be ported incrementally.
+
+- Compiling additional SWIG modules (blockoperator, blockvector, estimators,
+  ode, multigrid, constraints, complex_operator) would unblock several more
+  examples even before director support is available.
