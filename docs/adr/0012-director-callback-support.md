@@ -46,7 +46,7 @@ means:
 | ex4 | Partially ported | `VectorFunctionCoefficient` for F_exact, f_exact → constant RHS |
 | ex5 | Not ported | `FunctionCoefficient` callbacks + `BlockVector`/`BlockOperator` modules |
 | ex6 | Not ported | `ZienkiewiczZhuEstimator`, `ThresholdRefiner` (estimators module) |
-| ex7 | Not ported | Custom `SnapNodes` function (director callback) |
+| ex7 | Not ported | Custom `PyCoefficient` (analytic_rhs/solution) + `SnapNodes` mesh manipulation |
 | ex8 | Not ported | `BlockOperator`, `BlockVector` modules |
 | ex9 | Not ported | `PyTimeDependentOperator`, `VectorPyCoefficient` (director) |
 | ex10 | Not ported | `PyTimeDependentOperator`, nonlinear callbacks |
@@ -56,7 +56,8 @@ means:
 | ex21 | Not ported | `ZienkiewiczZhuEstimator`, `ThresholdRefiner` (estimators module) |
 | ex22 | Not ported | `ComplexOperator` module, `FunctionCoefficient` |
 | ex23 | Not ported | `SecondOrderTimeDependentOperator` (ODE module) |
-| ex24–ex25 | Not ported | Numba JIT / `FunctionCoefficient` |
+| ex24 | Not ported | `PyCoefficient`/`VectorPyCoefficient` + `DiscreteLinearOperator` interpolators |
+| ex25 | Not ported | Numba JIT / `FunctionCoefficient` |
 | ex26 | Not ported | `PyGeometricMultigrid` (multigrid module, director) |
 | ex27 | Not ported | `VectorPyCoefficient` for coordinate transform |
 | ex28 | Not ported | `BuildNormalConstraints`, `SchurConstrainedSolver` (constraints module) |
@@ -71,6 +72,35 @@ means:
    ex8 (blockoperator), ex22 (complex_operator), ex23 (ode),
    ex26 (multigrid), ex28 (constraints)
 3. **Both**: ex5, ex9, ex10, ex22, ex26
+
+### Near-portable candidates (detailed analysis)
+
+Several examples were analyzed for partial porting (replacing custom
+coefficients with `ConstantCoefficient`, like ex3/ex4):
+
+- **ex7** (surface Laplacian on sphere): Uses only compiled modules
+  (`H1_FECollection`, `DiffusionIntegrator`, `MassIntegrator`) but requires
+  programmatic mesh construction (`AddVertex`, `AddTriangle`, `AddQuad`) with
+  raw pointer arguments whose SWIG wrapping is uncertain. Also needs `SnapNodes`
+  which manipulates nodal coordinates via `DofToVDof`. The custom coefficients
+  (`analytic_rhs`, `analytic_solution`) could be replaced with
+  `ConstantCoefficient`, but the mesh construction is the harder blocker.
+
+- **ex24** (mixed finite elements): Uses `DiscreteLinearOperator` with
+  `GradientInterpolator`, `CurlInterpolator`, `DivergenceInterpolator`. While
+  `DiscreteLinearOperator` is auto-exposed from `bilinearform.hpp`, the
+  interpolators are in `lininteg.hpp` and may not have proper SWIG typemaps for
+  the `DiscreteInterpolator` base class. All coefficients are custom
+  `PyCoefficient`/`VectorPyCoefficient` subclasses.
+
+- **ex6** (adaptive mesh refinement): Uses only `ConstantCoefficient` but
+  requires `ZienkiewiczZhuEstimator` and `ThresholdRefiner` from the uncompiled
+  `estimators` module. Would be immediately portable once the estimators module
+  is compiled.
+
+- **ex9** (transient advection): Core DG advection algorithm uses standard
+  integrators (`ConvectionIntegrator`, `DGTraceIntegrator`) but requires ODE
+  solvers (uncompiled `ode` module) and custom coefficient callbacks.
 
 ### Possible approaches
 
@@ -116,10 +146,15 @@ support. Track progress in BUGS.md.
 - L² error computation against exact solutions is not possible until callback
   support is added.
 
-- Of 40 serial examples, 5 are fully ported (ex0, ex1, ex2, ex14) and 2 are
-  partially ported (ex3, ex4). The remaining 33 are blocked by either
+- Of 40 serial examples, 4 are fully ported (ex0, ex1, ex2, ex14) and 2 are
+  partially ported (ex3, ex4). The remaining 34 are blocked by either
   director/callback support (primary blocker) or uncompiled SWIG modules
   (secondary blocker). See the portability matrix above for details.
+
+- The next examples to become portable would be: ex6 (once the estimators
+  module is compiled), ex7 (once mesh construction wrapping is verified and
+  constant coefficients substituted), and ex24 (once DiscreteLinearOperator
+  interpolator wrapping is verified).
 
 - Users who need custom coefficients must currently implement them in C++ and
   wrap via SWIG, which defeats much of the purpose of Scheme bindings.
