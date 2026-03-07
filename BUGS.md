@@ -244,6 +244,38 @@ approach could work here. Alternatively, check L2 error norms against
 known analytic solutions (e.g. ex1's `-Delta u = 1` on the unit square
 has a known solution).
 
+## SWIG director support for coefficients not available
+
+**Affects:** ex3, ex4, ex5, ex6–ex40 (and any code that needs user-defined
+coefficient functions)
+
+**Symptom:** Cannot construct `FunctionCoefficient` or
+`VectorFunctionCoefficient` from Scheme because these constructors take C++
+function pointers or `std::function<>` objects. Cannot subclass `Coefficient`,
+`VectorCoefficient`, or `MatrixCoefficient` from Scheme to override `Eval()`.
+
+**Root cause:** SWIG's Guile backend does not implement **directors** — the
+mechanism that lets target-language subclasses override C++ virtual methods.
+PyMFEM uses directors extensively for user-defined coefficients
+(`PyCoefficient`, `VectorPyCoefficient`) and Numba-compiled callbacks.
+
+**Impact:** MFEM examples 3–40 require position-dependent coefficient
+functions (e.g. `sin(kappa * x)` for exact solutions). Without directors:
+- Examples 3 and 4 are ported with constant vector RHS as a workaround
+- L² error computation against exact solutions is not possible
+- Examples 5–40 cannot be meaningfully ported
+
+**Workaround:** Examples 3–4 use `VectorConstantCoefficient` for the RHS and
+zero initial guess, demonstrating the finite element API (Nedelec/RT elements,
+curl-curl/div-div integrators, assembly, solve) without exact error
+computation.
+
+**How to fix:** See ADR-0012 for a detailed analysis of approaches:
+1. Implement SWIG director support for the Guile backend (most complete)
+2. Custom typemaps for `std::function<>` via C shims (near-term)
+3. C-coded Scheme callback bridge library (no SWIG changes)
+4. Precompiled coefficient library with common functions (limited)
+
 # Missing Functionality
 
 ## GLVis visualization (socketstream)
