@@ -171,6 +171,7 @@ set(SERIAL_UNIT_TESTS
   # From MFEM C++ — modules compiled
   test-bilinearform test-linearform test-solvers test-operator
   test-fe test-sparsesmoothers test-domain-int test-device
+  test-hcurl-hdiv test-dg test-handle test-mixed-bilinearform test-boundary
   # From MFEM C++ — not compiled / directors needed (skip-guarded)
   test-ode test-custom-coefficient
   # From MFEM C++ — external library dependencies (skip-guarded)
@@ -218,7 +219,7 @@ endforeach()
 # Example tests — fast suite (default mesh only)
 set(EXAMPLE_ENV "LTDL_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};GUILE_AUTO_COMPILE=0;MFEM_DATA_DIR=${MFEM_DATA_DIR}")
 
-foreach(ex ex0 ex0-lisp ex1 ex1-lisp ex2 ex2-lisp)
+foreach(ex ex0 ex0-lisp ex1 ex1-lisp ex2 ex2-lisp ex3 ex3-lisp ex4 ex4-lisp ex14 ex14-lisp)
   add_test(
     NAME examples-fast-${ex}
     COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
@@ -242,7 +243,7 @@ foreach(ex ex0 ex0-lisp)
     TIMEOUT 300)
 endforeach()
 
-foreach(ex ex1 ex1-lisp ex2 ex2-lisp)
+foreach(ex ex1 ex1-lisp ex2 ex2-lisp ex3 ex3-lisp ex4 ex4-lisp ex14 ex14-lisp)
   add_test(
     NAME examples-full-${ex}
     COMMAND ${GUILE_EXECUTABLE} -L ${CMAKE_CURRENT_BINARY_DIR}
